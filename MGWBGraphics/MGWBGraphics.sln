@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameSpikes", "GameSpikes\GameSpikes.vcxproj", "{70AB5415-4524-490E-8541-27B6D02085CF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C5C0092F-41DA-4F2E-A45A-D179FE7DB551} = {C5C0092F-41DA-4F2E-A45A-D179FE7DB551}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MatrixEngine", "MatrixEngine\MatrixEngine.vcxproj", "{C5C0092F-41DA-4F2E-A45A-D179FE7DB551}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Challenge1ZombieSurvival", "Challenge1ZombieSurvival\Challenge1ZombieSurvival.vcxproj", "{800CA016-D68A-4D1E-944F-6B79123D31CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rubik", "Rubik\Rubik.vcxproj", "{338E4865-7CE6-4682-8FF5-3ADE72F488DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70AB5415-4524-490E-8541-27B6D02085CF}.Debug|x86.ActiveCfg = Debug|Win32
+		{70AB5415-4524-490E-8541-27B6D02085CF}.Debug|x86.Build.0 = Debug|Win32
+		{70AB5415-4524-490E-8541-27B6D02085CF}.Release|x86.ActiveCfg = Release|Win32
+		{70AB5415-4524-490E-8541-27B6D02085CF}.Release|x86.Build.0 = Release|Win32
+		{C5C0092F-41DA-4F2E-A45A-D179FE7DB551}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5C0092F-41DA-4F2E-A45A-D179FE7DB551}.Debug|x86.Build.0 = Debug|Win32
+		{C5C0092F-41DA-4F2E-A45A-D179FE7DB551}.Release|x86.ActiveCfg = Release|Win32
+		{C5C0092F-41DA-4F2E-A45A-D179FE7DB551}.Release|x86.Build.0 = Release|Win32
+		{800CA016-D68A-4D1E-944F-6B79123D31CF}.Debug|x86.ActiveCfg = Debug|Win32
+		{800CA016-D68A-4D1E-944F-6B79123D31CF}.Debug|x86.Build.0 = Debug|Win32
+		{800CA016-D68A-4D1E-944F-6B79123D31CF}.Release|x86.ActiveCfg = Release|Win32
+		{800CA016-D68A-4D1E-944F-6B79123D31CF}.Release|x86.Build.0 = Release|Win32
+		{338E4865-7CE6-4682-8FF5-3ADE72F488DF}.Debug|x86.ActiveCfg = Debug|Win32
+		{338E4865-7CE6-4682-8FF5-3ADE72F488DF}.Debug|x86.Build.0 = Debug|Win32
+		{338E4865-7CE6-4682-8FF5-3ADE72F488DF}.Release|x86.ActiveCfg = Release|Win32
+		{338E4865-7CE6-4682-8FF5-3ADE72F488DF}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
