@@ -53,7 +53,7 @@ namespace MatrixEngine
 		//Check OpenGL Version
 		std::printf("***   OpenGL Version: %s   ***", (char*)glGetString(GL_VERSION));
 
-		glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		//Set VSYNC
 		SDL_GL_SetSwapInterval(1);

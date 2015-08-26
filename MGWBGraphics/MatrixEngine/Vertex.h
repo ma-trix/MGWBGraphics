@@ -16,6 +16,13 @@ namespace MatrixEngine
 		float y;
 	};
 
+	struct Position3D
+	{
+		float x;
+		float y;
+		float z;
+	};
+
 	struct UV
 	{
 		float u;
@@ -46,6 +53,34 @@ namespace MatrixEngine
 		{
 			position.x = x;
 			position.y = y;
+		}
+	};
+
+	struct Vertex3D
+	{
+		Position3D position;
+		Color color;
+		UV uv;
+
+		void setColor(GLubyte r, GLubyte g, GLubyte b, GLubyte a)
+		{
+			color.r = r;
+			color.g = g;
+			color.b = b;
+			color.a = a;
+		}
+
+		void setUV(float u, float v)
+		{
+			uv.u = u;
+			uv.v = v;
+		}
+
+		void setPosition(float x, float y, float z)
+		{
+			position.x = x;
+			position.y = y;
+			position.z = z;
 		}
 	};
 }

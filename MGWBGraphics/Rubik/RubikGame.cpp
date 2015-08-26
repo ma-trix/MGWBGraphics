@@ -3,9 +3,11 @@
 #include <iostream>
 #include <MatrixEngine/GLTexture.h>
 #include <MatrixEngine/ResourceManager.h>
+#include <MatrixEngine/Voxel.h>
+#include <MatrixEngine/Sprite.h>
 
 
-RubikGame::RubikGame() : _screenWidth(1600), _screenHeight(1000), _maxFPS(60), _gameState(GameState::PLAY)
+RubikGame::RubikGame() : _screenWidth(1600), _screenHeight(900), _maxFPS(60), _gameState(GameState::PLAY)
 {
 }
 
@@ -24,11 +26,26 @@ void RubikGame::run()
 void RubikGame::initSystems()
 {
 	MatrixEngine::init();
-	_window.create("Rubik 3D", _screenWidth, _screenHeight, MatrixEngine::WindowFlags::BORDERLESS);
+	_window.create("Rubik 3D", _screenWidth, _screenHeight, 0);
 	initShaders();
 	_spriteBatch.init();
 	_fpsLimiter.init(_maxFPS);
-	_camera.init(_screenWidth, _screenHeight);
+	// Field of view in degrees
+	float foV = 45.0f;
+	// Aspect ratio width to height
+	float aspectRatio = 16.0f / 9.0f;
+	// Check http://www.songho.ca/opengl/gl_projectionmatrix.html#comment-1308374035
+	float front = 1.0f;
+	// See above link
+	float back = 10.0f;
+	_camera.init(_screenWidth, _screenHeight, foV, aspectRatio, front, back);
+	glm::vec3 position{0.0f, 0.0f, 0.0f};
+	_camera.setPosition(position);
+	_camera.setScale(1.0f);
+	
+	_camera2D.init(_screenWidth, _screenHeight);
+	_camera2D.setPosition(glm::vec2{ 0.0f, 0.0f });
+	_camera2D.setScale(1.0f);
 }
 
 void RubikGame::initShaders()
@@ -48,6 +65,7 @@ void RubikGame::gameLoop()
 		processInput();
 		_time += 0.1f;
 		_camera.update();
+		_camera2D.update();
 		drawGame();
 		_fps = _fpsLimiter.end();
 
@@ -61,8 +79,15 @@ void RubikGame::gameLoop()
 	}
 }
 
+void setVertexData(MatrixEngine::Vertex3D* vertex, float x, float y, float z, float u, float v)
+{
+	vertex->setPosition(x, y, z);
+	vertex->setUV(u, v);
+}
+
 void RubikGame::drawGame()
 {
+	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -72,15 +97,119 @@ void RubikGame::drawGame()
 	glUniform1i(textureLocation, 0);
 
 	GLint pLocation = _colorProgram.getUniformLocation("P");
-	glm::mat4 cameraMatrix = _camera.getCameraMatrix();
+	//glm::mat4 cameraMatrix = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 1.0f, 10.0f);
+	glm::mat4 cameraMatrix = _camera.getProjectionMatrix();
+	//glm::mat4 cameraMatrix2D = _camera2D.getCameraMatrix();
 	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+	//glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix2D[0][0]));
 
+
+	GLint vLocation = _colorProgram.getUniformLocation("V");
+
+	glm::mat4 view = glm::lookAt(
+		glm::vec3(2.5f, 2.5f, 2.5f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+		);
+	glUniformMatrix4fv(vLocation, 1, GL_FALSE, &(view[0][0]));
+
+	GLint mLocation = _colorProgram.getUniformLocation("M");
+
+	glm::mat4 model = _camera.getCameraMatrix();
+	glUniformMatrix4fv(mLocation, 1, GL_FALSE, &(model[0][0]));
+
+
+	MatrixEngine::Voxel voxel;
+	voxel.init(-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, "Textures/PNG/HeartAyse800x800.png");
+	voxel.draw();
+
+	///////////////////////
+	/*std::string texturePath = "Textures/PNG/RedSquare80x80.png";
+	GLuint _vboID = 0;
+	GLuint _vao = 0;
+	float x = -0.5f;
+	float y = -0.5f;
+	float z = -0.5f;
+	float width = 10.0f;
+	float height = 10.0f;
+	MatrixEngine::GLTexture _texture = MatrixEngine::ResourceManager::getTexture(texturePath);
+
+	if (_vboID == 0)
+	{
+		glGenBuffers(1, &_vboID);
+	}
+
+	MatrixEngine::Vertex3D vertexData[6];
+
+	//first triangle
+	vertexData[0].setPosition(-0.5f, -0.5f, -0.5f);
+	vertexData[0].setUV(0.0f, 0.0f);
+
+	vertexData[1].setPosition(0.5f, -0.5f, -0.5f);
+	vertexData[1].setUV(1.0f, 0.0f);
+
+	vertexData[2].setPosition(0.5f, 0.5f, -0.5f);
+	vertexData[2].setUV(1.0f, 1.0f);
+
+	//second triangle
+	vertexData[3].setPosition(0.5f, 0.5f, -0.5f);
+	vertexData[3].setUV(1.0f, 1.0f);
+
+	vertexData[4].setPosition(-0.5f, 0.5f, -0.5f);
+	vertexData[4].setUV(0.0f, 1.0f);
+
+	vertexData[5].setPosition(-0.5f, -0.5f, -0.5f);
+	vertexData[5].setUV(0.0f, 0.0f);
+
+	for (int i = 0; i < 6; i++)
+	{
+		vertexData[i].setColor(255, 255, 255, 255);
+	}
+
+	vertexData[1].setColor(0, 0, 255, 255);
+	vertexData[4].setColor(0, 255, 0, 255);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vboID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+	//unbinding buffer, 0 means no buffer
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	if (_vao == 0)
+	{
+		glGenVertexArrays(1, &_vao);
+	}
+	glBindVertexArray(_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, _vboID); //TODO: added via comparison to Sprite, not sure if it's correct
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MatrixEngine::Vertex3D), (void*)offsetof(MatrixEngine::Vertex3D, position));
+	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(MatrixEngine::Vertex3D), (void*)offsetof(MatrixEngine::Vertex3D, color));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MatrixEngine::Vertex3D), (void*)offsetof(MatrixEngine::Vertex3D, uv));
+
+	glBindTexture(GL_TEXTURE_2D, _texture.id);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);*/
+
+	/////////////////////////////
+
+	/*	
 	_spriteBatch.begin();
 
 	glm::vec4 position(0.0f, 0.0f, 50.0f, 50.0f);
+	glm::vec4 position2(55.0f, 15.0f, 30.0f, 30.0f);
 	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
-	//static MatrixEngine::GLTexture texture = MatrixEngine::ResourceManager::getTexture("Textures/PNG/RedSquare80x80.png");
 	static MatrixEngine::GLTexture texture = MatrixEngine::ResourceManager::getTexture("Textures/PNG/HeartAyse800x800.png");
+	static MatrixEngine::GLTexture texture2 = MatrixEngine::ResourceManager::getTexture("Textures/PNG/RedSquare80x80.png");
 
 	MatrixEngine::Color color;
 	color.r = 255;
@@ -89,11 +218,13 @@ void RubikGame::drawGame()
 	color.a = 255;
 
 	_spriteBatch.draw(position, uv, texture.id, 0.0f, color);
+	_spriteBatch.draw(position2, uv, texture2.id, 0.0f, color);
 
 	_spriteBatch.end();
 
 	_spriteBatch.renderBatch();
-
+	
+	*/
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	_colorProgram.unuse();
@@ -102,7 +233,7 @@ void RubikGame::drawGame()
 
 void RubikGame::processInput()
 {
-	const float CAMERA_SPEED = 2.0f;
+	const float CAMERA_SPEED = 0.5f;
 	const float SCALE_SPEED = 0.1f;
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
@@ -131,19 +262,19 @@ void RubikGame::processInput()
 	}
 	if (_inputManager.isKeyPressed(SDLK_w))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec2(0.0f, CAMERA_SPEED));
+		_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, CAMERA_SPEED));
 	}
 	if (_inputManager.isKeyPressed(SDLK_s))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec2(0.0f, -CAMERA_SPEED));
+		_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, -CAMERA_SPEED));
 	}
 	if (_inputManager.isKeyPressed(SDLK_d))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec2(CAMERA_SPEED, 0.0f));
+		_camera.setPosition(_camera.getPosition() + glm::vec3(CAMERA_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_a))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec2(-CAMERA_SPEED, 0.0f));
+		_camera.setPosition(_camera.getPosition() + glm::vec3(-CAMERA_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_q))
 	{
@@ -152,7 +283,31 @@ void RubikGame::processInput()
 	if (_inputManager.isKeyPressed(SDLK_e))
 	{
 		_camera.setScale(_camera.getScale() - SCALE_SPEED);
+	}/*
+	if (_inputManager.isKeyPressed(SDLK_w))
+	{
+		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(0.0f, CAMERA_SPEED));
 	}
+	if (_inputManager.isKeyPressed(SDLK_s))
+	{
+		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(0.0f, -CAMERA_SPEED));
+	}
+	if (_inputManager.isKeyPressed(SDLK_d))
+	{
+		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(CAMERA_SPEED, 0.0f));
+	}
+	if (_inputManager.isKeyPressed(SDLK_a))
+	{
+		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(-CAMERA_SPEED, 0.0f));
+	}
+	if (_inputManager.isKeyPressed(SDLK_q))
+	{
+		_camera2D.setScale(_camera2D.getScale() + SCALE_SPEED);
+	}
+	if (_inputManager.isKeyPressed(SDLK_e))
+	{
+		_camera2D.setScale(_camera2D.getScale() - SCALE_SPEED);
+	}*/
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
 	{
 		_gameState = GameState::EXIT;

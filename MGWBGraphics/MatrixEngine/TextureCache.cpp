@@ -24,7 +24,7 @@ namespace MatrixEngine
 			std::cout << "Loaded texture.\n";
 			return newTexture;
 		}
-		std::cout << "Used cached texture.\n";
+		//std::cout << "Used cached texture.\n";
 		return mit->second;
 	}
 }

@@ -3,8 +3,9 @@
 #include <MatrixEngine/Window.h>
 #include <MatrixEngine/SpriteBatch.h>
 #include <MatrixEngine/Timing.h>
-#include <MatrixEngine/Camera2D.h>
 #include <MatrixEngine/InputManager.h>
+#include <MatrixEngine/Camera3D.h>
+#include <MatrixEngine/Camera2D.h>
 
 enum class GameState { PLAY, EXIT };
 
@@ -29,7 +30,11 @@ private:
 	int _maxFPS;
 	GameState _gameState;
 	float _time;
-	MatrixEngine::Camera2D _camera;
+	MatrixEngine::Camera3D _camera;
+	MatrixEngine::Camera2D _camera2D;
 	float _fps;
 	MatrixEngine::InputManager _inputManager;
+	GLuint ibo_cube_elements;
+	GLuint vbo_cube_vertices;
+	GLuint vbo_cube_colors;
 };
