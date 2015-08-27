@@ -17,5 +17,6 @@ void main(){
 	gl_Position = P * V * M * vec4(vertexPosition, 1.0);
 
 	fragmentColor = vertexColor;
-	fragmentUV = vec2(vertexUV.x, 1.0 - vertexUV.y); //flipping y coordinate, otherwise sprite would be upside down
+	//fragmentUV = vec2(vertexUV.x, 1.0 - vertexUV.y); //flipping y coordinate, otherwise sprite would be upside down
+	fragmentUV = vec2(vertexUV.x, vertexUV.y); //flipping y coordinate, otherwise sprite would be upside down
 }
