@@ -36,9 +36,11 @@ namespace MatrixEngine {
 		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex3D), (void*)offsetof(Vertex3D, color));
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)offsetof(Vertex3D, uv));
 
-		glBindTexture(GL_TEXTURE_2D, _face[0].id);
-		
-		glDrawArrays(GL_TRIANGLES, 6, 6);
+		for (int i = 0; i < 6; i++) 
+		{
+			glBindTexture(GL_TEXTURE_2D, _face[i].id);
+			glDrawArrays(GL_TRIANGLES, i*6, 6);
+		}
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
@@ -74,9 +76,16 @@ namespace MatrixEngine {
 		_height = height;
 		_depth = depth;
 
-		for (int i = 0; i < 6; i++) {
+		/*for (int i = 0; i < 6; i++) {
 			_face[i] = ResourceManager::getTexture(texturePath);
-		}
+		}*/
+
+		_face[0] = ResourceManager::getTexture("Textures/PNG/Face1Yellow800x800.png");
+		_face[1] = ResourceManager::getTexture("Textures/PNG/Face2Blue800x800.png");
+		_face[2] = ResourceManager::getTexture("Textures/PNG/Face3Green800x800.png");
+		_face[3] = ResourceManager::getTexture("Textures/PNG/Face4Red800x800.png");
+		_face[4] = ResourceManager::getTexture("Textures/PNG/Face5Orange800x800.png");
+		_face[5] = ResourceManager::getTexture("Textures/PNG/Face6White800x800.png");
 
 		if (_vboID == 0)
 		{
@@ -90,9 +99,9 @@ namespace MatrixEngine {
 		GLuint a = 255;
 		// Top = face 1
 		// vertex A
-		setVertexData(vertexData[0], _x + _width, _y + _height, _z - _depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[0], _x + _width, _y + _height, _z + _depth, 1.0f, 1.0f, r, g, b, a);
 		// vertex B
-		setVertexData(vertexData[1], x, y + height, z - depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
 		// vertex C
 		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, r, g, b, a);
 		
@@ -101,7 +110,7 @@ namespace MatrixEngine {
 		// vertex D
 		setVertexData(vertexData[4], x + width, y + height, z, 1.0f, 0.0f, r, g, b, a);
 		// vertex A
-		setVertexData(vertexData[5], x + width, y + height, z - depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[5], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
 		
 		// Front = face 2
 		// vertex D
