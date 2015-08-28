@@ -188,19 +188,19 @@ void RubikGame::drawGame()
 	glm::mat4 model = _camera.getCameraMatrix();
 	glUniformMatrix4fv(mLocation, 1, GL_FALSE, &(model[0][0]));
 
-	auto texture_path1 = "Textures/PNG/Face1Yellow800x800.png";
-	auto texture_path2 = "Textures/PNG/Face2Blue800x800.png";
-	auto texture_path3 = "Textures/PNG/Face3Green800x800.png";
-	auto texture_path4 = "Textures/PNG/Face4Red800x800.png";
-	auto texture_path5 = "Textures/PNG/Face5Orange800x800.png";
-	auto texture_path6 = "Textures/PNG/Face6White800x800.png";
+	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
+	auto texture_path2 = "Textures/PNG/Face2Blue80x80.png";
+	auto texture_path3 = "Textures/PNG/Face3Green80x80.png";
+	auto texture_path4 = "Textures/PNG/Face4Red80x80.png";
+	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
+	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
 
 	MatrixEngine::Voxel voxel;
 	voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
 	voxel.draw();
 
 	MatrixEngine::Voxel voxel2;
-	voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse800x800.png");
+	voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
 	voxel2.draw();
 
 	///////////////////////
