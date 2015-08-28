@@ -91,4 +91,24 @@ namespace MatrixEngine
 			position.z = z;
 		}
 	};
+
+	struct Vertex3DnoUV
+	{
+		Position3D position;
+		Color color;
+		void setColor(GLubyte r, GLubyte g, GLubyte b, GLubyte a)
+		{
+			color.r = r;
+			color.g = g;
+			color.b = b;
+			color.a = a;
+		}
+
+		void setPosition(float x, float y, float z)
+		{
+			position.x = x;
+			position.y = y;
+			position.z = z;
+		}
+	};
 }
