@@ -39,6 +39,7 @@ namespace MatrixEngine {
 		for (int i = 0; i < 6; i++) 
 		{
 			glBindTexture(GL_TEXTURE_2D, _face[i].id);
+			//glDrawElements(GL_TRIANGLES, 2, GL_UNSIGNED_INT, reinterpret_cast<void*>(2*i*sizeof(GLuint)));
 			glDrawArrays(GL_TRIANGLES, i*6, 6);
 		}
 		glDisableVertexAttribArray(0);
@@ -84,11 +85,55 @@ namespace MatrixEngine {
 			glGenBuffers(1, &_vboID);
 		}
 
+		/*
+		GLuint indices[36] = {
+		0, 1, 2, 2, 3, 0,	// Top		face 1
+		3, 2, 4, 4, 5, 3,	// Front	face 2
+		0, 3, 5, 5, 6, 0,	// Right	face 3
+		0, 1, 6, 6, 7, 1,	// Back		face 4
+		2, 1, 7, 7, 4, 2,	// Left		face 5
+		5, 4, 7, 7, 6, 5	// Bottom	face 6
+		};
+
+		GLuint eao;
+		glGenBuffers(1, &eao);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eao);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+
+		//Vertex3D vertexData[36];
+		Vertex3D vertexData[8];
+		GLuint r = 255;
+		GLuint g = 255;
+		GLuint b = 255;
+		GLuint a = 255;
+
+		///////////////
+		// vertex A
+		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		// vertex B
+		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
+		// vertex C
+		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, r, g, b, a);
+		// vertex D
+		setVertexData(vertexData[3], x + width, y + height, z, 1.0f, 0.0f, r, g, b, a);
+		// vertex E
+		setVertexData(vertexData[4], x, y, z, 0.0f, 0.0f, r, g, b, a);
+		// vertex F
+		setVertexData(vertexData[5], x, y + width, z, 1.0f, 0.0f, r, g, b, a);
+		// vertex G
+		setVertexData(vertexData[6], x + width, y, z + depth, 0.0f, 1.0f, r, g, b, a);
+		// vertex H
+		setVertexData(vertexData[7], x, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		*/
+		///////////////
+		
 		Vertex3D vertexData[36];
 		GLuint r = 255;
 		GLuint g = 255;
 		GLuint b = 255;
 		GLuint a = 255;
+		
+		
 		// Top = face 1
 		// vertex A
 		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
