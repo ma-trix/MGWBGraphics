@@ -74,13 +74,6 @@ namespace MatrixEngine {
 
 	void Voxel::init(float x, float y, float z, float width, float height, float depth, std::string texturePath1, std::string texturePath2, std::string texturePath3, std::string texturePath4, std::string texturePath5, std::string texturePath6)
 	{
-		_x = x;
-		_y = y;
-		_z = z;
-		_width = width;
-		_height = height;
-		_depth = depth;
-
 		_face[0] = ResourceManager::getTexture(texturePath1);
 		_face[1] = ResourceManager::getTexture(texturePath2);
 		_face[2] = ResourceManager::getTexture(texturePath3);
@@ -100,7 +93,7 @@ namespace MatrixEngine {
 		GLuint a = 255;
 		// Top = face 1
 		// vertex A
-		setVertexData(vertexData[0], _x + _width, _y + _height, _z + _depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
 		// vertex B
 		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
 		// vertex C
