@@ -90,6 +90,13 @@ namespace MatrixEngine {
 		vertex.setColor(r, g, b, a);
 	}
 
+	void setVertexData(Vertex3D &vertex, float x, float y, float z, UV uv, UV* uvs, int i, GLuint r, GLuint g, GLuint b, GLuint a)
+	{
+		vertex.setPosition(x, y, z);
+		vertex.setColor(r, g, b, a);
+		uvs[i] = uv;
+	}
+
 	void setTriangleData()
 	{
 		// counter clockwise vertex order
@@ -106,19 +113,9 @@ namespace MatrixEngine {
 		init(x, y, z, width, height, depth, { singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath });
 	}
 
-	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string (&texturePaths)[6])
+	void Voxel::setAllVertexDataSeparately(float x, float y, float z, float width, float height, float depth)
 	{
-		for (int i = 0; i < 6; i++) 
-		{
-			_face[i] = ResourceManager::getTexture(texturePaths[i]);
-		}
 		
-		if (_vboID == 0)
-		{
-			glGenBuffers(1, &_vboID);
-		}
-
-		/*
 		GLuint indices[36] = {
 		0, 1, 2, 2, 3, 0,	// Top		face 1
 		3, 2, 4, 4, 5, 3,	// Front	face 2
@@ -135,130 +132,151 @@ namespace MatrixEngine {
 
 		//Vertex3D vertexData[36];
 		Vertex3D vertexData[8];
-		GLuint r = 255;
-		GLuint g = 255;
-		GLuint b = 255;
-		GLuint a = 255;
 
+		Color color;
+		color.set(255,255,255,255);
 		///////////////
 		// vertex A
-		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex B
-		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex C
-		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex D
-		setVertexData(vertexData[3], x + width, y + height, z, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[3], x + width, y + height, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex E
-		setVertexData(vertexData[4], x, y, z, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[4], x, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex F
-		setVertexData(vertexData[5], x, y + width, z, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[5], x, y + width, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex G
-		setVertexData(vertexData[6], x + width, y, z + depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[6], x + width, y, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex H
-		setVertexData(vertexData[7], x, y, z + depth, 0.0f, 0.0f, r, g, b, a);
-		*/
-		///////////////
-		
+		setVertexData(vertexData[7], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
+	}
+
+	void Voxel::setAllVertexData(float x, float y, float z, float width, float height, float depth)
+	{
+		Color color;
+		color.set(255, 255, 255, 255);
 		Vertex3D vertexData[36];
-		GLuint r = 255;
-		GLuint g = 255;
-		GLuint b = 255;
-		GLuint a = 255;
-		
-		
+		GLuint r = color.r;
+		GLuint g = color.g;
+		GLuint b = color.b;
+		GLuint a = color.a;
 		// Top = face 1
 		// vertex A
-		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex B
-		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex C
-		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, r, g, b, a);
-		
+		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
+
 		// vertex C
-		setVertexData(vertexData[3], x, y + height, z, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[3], x, y + height, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex D
-		setVertexData(vertexData[4], x + width, y + height, z, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[4], x + width, y + height, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex A
-		setVertexData(vertexData[5], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
-		
+		setVertexData(vertexData[5], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
+
 		// Front = face 2
 		// vertex D
-		setVertexData(vertexData[6], x + width, y + height, z, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[6], x + width, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex C
-		setVertexData(vertexData[7], x, y + height, z, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[7], x, y + height, z, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex E
-		setVertexData(vertexData[8], x, y, z, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[8], x, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 
 		// vertex E
-		setVertexData(vertexData[9], x, y, z, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[9], x, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex F
-		setVertexData(vertexData[10], x, y + width, z, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[10], x, y + width, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex D
-		setVertexData(vertexData[11], x + width, y + height, z, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[11], x + width, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 
 		// Right = face 3
 		// vertex A
-		setVertexData(vertexData[12], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[12], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex D
-		setVertexData(vertexData[13], x + width, y + height, z, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[13], x + width, y + height, z, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex F
-		setVertexData(vertexData[14], x + width, y, z, 0.0f, 0.0f, r, g, b, a);
-		
+		setVertexData(vertexData[14], x + width, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
+
 		// vertex F
-		setVertexData(vertexData[15], x + width, y, z, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[15], x + width, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex G
-		setVertexData(vertexData[16], x + width, y, z + depth, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[16], x + width, y, z + depth, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex A
-		setVertexData(vertexData[17], x + width, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[17], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 
 		// Back = face 4
 		// vertex B
-		setVertexData(vertexData[18], x, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[18], x, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex A
-		setVertexData(vertexData[19], x + width, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[19], x + width, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex F
-		setVertexData(vertexData[20], x + width, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[20], x + width, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 
 		// vertex F
-		setVertexData(vertexData[21], x + width, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[21], x + width, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex H
-		setVertexData(vertexData[22], x, y, z + depth, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[22], x, y, z + depth, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex A
-		setVertexData(vertexData[23], x, y + height, z + depth, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[23], x, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 
 		// Left = face 5
 		// vertex C
-		setVertexData(vertexData[24], x, y + height, z, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[24], x, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex B
-		setVertexData(vertexData[25], x, y + height, z + depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[25], x, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex H
-		setVertexData(vertexData[26], x, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[26], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 
 		// vertex H
-		setVertexData(vertexData[27], x, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[27], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex E
-		setVertexData(vertexData[28], x, y, z, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[28], x, y, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex C
-		setVertexData(vertexData[29], x, y + height, z, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[29], x, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 
 		// Bottom = face 6
 		// vertex F
-		setVertexData(vertexData[30], x + width, y, z, 1.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[30], x + width, y, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex E
-		setVertexData(vertexData[31], x, y, z, 1.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[31], x, y, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex H
-		setVertexData(vertexData[32], x, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[32], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 
 		// vertex H
-		setVertexData(vertexData[33], x, y, z + depth, 0.0f, 0.0f, r, g, b, a);
+		setVertexData(vertexData[33], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
 		// vertex G
-		setVertexData(vertexData[34], x + width, y, z + depth, 0.0f, 1.0f, r, g, b, a);
+		setVertexData(vertexData[34], x + width, y, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
 		// vertex F
-		setVertexData(vertexData[35], x + width, y, z, 1.0f, 1.0f, r, g, b, a);
-
+		setVertexData(vertexData[35], x + width, y, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
 		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void Voxel::loadFaceTextures(const std::string(& texturePaths)[6])
+	{
+		for (int i = 0; i < 6; i++) 
+		{
+			_face[i] = ResourceManager::getTexture(texturePaths[i]);
+		}
+	}
+
+	void Voxel::vboCheck()
+	{
+		if (_vboID == 0)
+		{
+			glGenBuffers(1, &_vboID);
+		}
+	}
+
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string (&texturePaths)[6])
+	{
+		loadFaceTextures(texturePaths);
+		vboCheck();
+		setAllVertexData(x, y, z, width, height, depth);
 	}
 }
