@@ -4,6 +4,14 @@
 namespace MatrixEngine
 {
 	struct Color {
+		void set(GLubyte R, GLubyte G, GLubyte B, GLubyte A)
+		{
+			r = R;
+			g = G;
+			b = B;
+			a = A;
+		}
+
 		GLubyte r;
 		GLubyte g;
 		GLubyte b;
