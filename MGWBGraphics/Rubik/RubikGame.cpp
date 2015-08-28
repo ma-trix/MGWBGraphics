@@ -196,7 +196,7 @@ void RubikGame::drawGame()
 	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
 
 	MatrixEngine::Voxel voxel;
-	voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
+	voxel.initNewNotation(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
 	voxel.drawNewNotation();
 
 	MatrixEngine::Voxel voxel2;
