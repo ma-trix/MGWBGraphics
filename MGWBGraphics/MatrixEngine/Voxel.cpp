@@ -67,7 +67,12 @@ namespace MatrixEngine {
 		// lower right triangle
 	}
 
-	void Voxel::init(float x, float y, float z, float width, float height, float depth, std::string texturePath)
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, std::string singleTexturePath)
+	{
+		init(x, y, z, width, height, depth, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath);
+	}
+
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, std::string texturePath1, std::string texturePath2, std::string texturePath3, std::string texturePath4, std::string texturePath5, std::string texturePath6)
 	{
 		_x = x;
 		_y = y;
@@ -76,16 +81,12 @@ namespace MatrixEngine {
 		_height = height;
 		_depth = depth;
 
-		/*for (int i = 0; i < 6; i++) {
-			_face[i] = ResourceManager::getTexture(texturePath);
-		}*/
-
-		_face[0] = ResourceManager::getTexture("Textures/PNG/Face1Yellow800x800.png");
-		_face[1] = ResourceManager::getTexture("Textures/PNG/Face2Blue800x800.png");
-		_face[2] = ResourceManager::getTexture("Textures/PNG/Face3Green800x800.png");
-		_face[3] = ResourceManager::getTexture("Textures/PNG/Face4Red800x800.png");
-		_face[4] = ResourceManager::getTexture("Textures/PNG/Face5Orange800x800.png");
-		_face[5] = ResourceManager::getTexture("Textures/PNG/Face6White800x800.png");
+		_face[0] = ResourceManager::getTexture(texturePath1);
+		_face[1] = ResourceManager::getTexture(texturePath2);
+		_face[2] = ResourceManager::getTexture(texturePath3);
+		_face[3] = ResourceManager::getTexture(texturePath4);
+		_face[4] = ResourceManager::getTexture(texturePath5);
+		_face[5] = ResourceManager::getTexture(texturePath6);
 
 		if (_vboID == 0)
 		{
