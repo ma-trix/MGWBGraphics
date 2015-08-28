@@ -67,20 +67,18 @@ namespace MatrixEngine {
 		// lower right triangle
 	}
 
-	void Voxel::init(float x, float y, float z, float width, float height, float depth, std::string singleTexturePath)
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string singleTexturePath)
 	{
-		init(x, y, z, width, height, depth, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath);
+		init(x, y, z, width, height, depth, { singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath });
 	}
 
-	void Voxel::init(float x, float y, float z, float width, float height, float depth, std::string texturePath1, std::string texturePath2, std::string texturePath3, std::string texturePath4, std::string texturePath5, std::string texturePath6)
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string (&texturePaths)[6])
 	{
-		_face[0] = ResourceManager::getTexture(texturePath1);
-		_face[1] = ResourceManager::getTexture(texturePath2);
-		_face[2] = ResourceManager::getTexture(texturePath3);
-		_face[3] = ResourceManager::getTexture(texturePath4);
-		_face[4] = ResourceManager::getTexture(texturePath5);
-		_face[5] = ResourceManager::getTexture(texturePath6);
-
+		for (int i = 0; i < 6; i++) 
+		{
+			_face[i] = ResourceManager::getTexture(texturePaths[i]);
+		}
+		
 		if (_vboID == 0)
 		{
 			glGenBuffers(1, &_vboID);
