@@ -50,6 +50,39 @@ namespace MatrixEngine {
 		glBindVertexArray(0);
 	}
 
+	void Voxel::drawNewNotation()
+	{
+		if (_vao == 0)
+		{
+			glGenBuffers(1, &_vao);
+		}
+
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+
+		glBindVertexBuffer(0, _vboID, 0, sizeof(Vertex3D));
+		glVertexAttribFormat(0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex3D, position));
+		glVertexAttribBinding(0, 0);
+		glVertexAttribFormat(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex3D, color));
+		glVertexAttribBinding(1, 0);
+		glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex3D, uv));
+		glVertexAttribBinding(2, 0);
+		
+		for (int i = 0; i < 6; i++)
+		{
+			glBindTexture(GL_TEXTURE_2D, _face[i].id);
+			glDrawArrays(GL_TRIANGLES, i * 6, 6);
+		}
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glBindVertexArray(0);
+
+	}
+
 	void setVertexData(Vertex3D &vertex, float x, float y, float z, float u, float v, GLuint r, GLuint g, GLuint b, GLuint a)
 	{
 		vertex.setPosition(x, y, z);
