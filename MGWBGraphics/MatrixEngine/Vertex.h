@@ -33,7 +33,7 @@ namespace MatrixEngine
 
 	struct UV
 	{
-		UV()
+		/*UV()
 		{
 			u = 0.0f;
 			v = 0.0f;
@@ -42,7 +42,7 @@ namespace MatrixEngine
 		{
 			u = U;
 			v = V;
-		}
+		}*/
 		float u;
 		float v;
 	};
