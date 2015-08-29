@@ -25,7 +25,6 @@ namespace MatrixEngine {
 		void Voxel::setVertexDataFace4Back(float x, float y, float z, float width, float height, float depth, Color color, Vertex3D vertexData[36]);
 		void Voxel::setVertexDataFace5Left(float x, float y, float z, float height, float depth, Color color, Vertex3D vertexData[36]);
 		void Voxel::setVertexDataFace6Bottom(float x, float y, float z, float width, float depth, Color color, Vertex3D vertexData[36]);
-		void generateBufferIfDoesntExist(GLuint &buffer);
 		GLuint _vao;
 		GLuint _vboID;
 		GLTexture _face[6];
