@@ -37,4 +37,5 @@ private:
 	GLuint ibo_cube_elements;
 	GLuint vbo_cube_vertices;
 	GLuint vbo_cube_colors;
+	glm::vec2 _savedMouseCoords;
 };

@@ -111,4 +111,20 @@ namespace MatrixEngine {
 		_height = _front * _tangent;
 		_width = _height * _aspectRatio;
 	}
+
+	glm::vec3 Camera3D::getArcBallVector(glm::vec2 mouse)
+	{
+		glm::vec3 P = glm::vec3(1.0f * mouse.x / _screenWidth * 2 - 1.0f, 1.0f * mouse.y / _screenHeight * 2 - 1.0f, 0.0f);
+		P.y = -P.y;
+		float OP_squared = P.x * P.x + P.y * P.y;
+		if(OP_squared <= 1*1)
+		{
+			P.z = sqrt(1 * 1 - OP_squared);
+		}
+		else
+		{
+			P = glm::normalize(P);
+		}
+		return P;
+	}
 }
