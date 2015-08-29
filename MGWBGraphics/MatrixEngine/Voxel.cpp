@@ -6,6 +6,7 @@
 namespace MatrixEngine {
 	Voxel::Voxel()
 	{
+		_vao = 0;
 		_vboID = 0;
 	}
 
@@ -14,6 +15,10 @@ namespace MatrixEngine {
 		if (_vboID != 0)
 		{
 			glDeleteBuffers(1, &_vboID);
+		}
+		if (_vao != 0)
+		{
+			glDeleteBuffers(1, &_vao);
 		}
 	}
 
