@@ -65,7 +65,7 @@ namespace MatrixEngine {
 	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string(&texturePaths)[6])
 	{
 		loadFaceTextures(texturePaths);
-		generateBufferIfDoesntExist(_vboID);
+		if (_vboID == 0) { glGenBuffers(1, &_vboID); }
 		setAllVertexData(x, y, z, width, height, depth);
 	}
 
@@ -199,14 +199,6 @@ namespace MatrixEngine {
 		for (int i = 0; i < 6; i++)
 		{
 			_face[i] = ResourceManager::getTexture(texturePaths[i]);
-		}
-	}
-
-	void Voxel::generateBufferIfDoesntExist(GLuint &buffer)
-	{
-		if (buffer == 0)
-		{
-			glGenBuffers(1, &buffer);
 		}
 	}
 }
