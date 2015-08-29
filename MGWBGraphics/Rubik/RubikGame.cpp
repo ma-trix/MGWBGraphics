@@ -1,10 +1,7 @@
 #include "RubikGame.h"
 #include <MatrixEngine/MatrixEngine.h>
 #include <iostream>
-#include <MatrixEngine/GLTexture.h>
-#include <MatrixEngine/ResourceManager.h>
 #include <MatrixEngine/Voxel.h>
-#include <MatrixEngine/Sprite.h>
 
 
 RubikGame::RubikGame() : _screenWidth(1600), _screenHeight(900), _maxFPS(60), _gameState(GameState::PLAY)
@@ -30,14 +27,11 @@ void RubikGame::initSystems()
 	initShaders();
 	_spriteBatch.init();
 	_fpsLimiter.init(_maxFPS);
-	// Field of view in degrees
-	float foV = 45.0f;
-	// Aspect ratio width to height
-	float aspectRatio = 16.0f / 9.0f;
-	// Check http://www.songho.ca/opengl/gl_projectionmatrix.html#comment-1308374035
-	float front = 1.0f;
-	// See above link
-	float back = 10.0f;
+	
+	float foV = 45.0f;	// Field of view in degrees
+	float aspectRatio = 16.0f / 9.0f;	// Aspect ratio width to height
+	float front = 1.0f;	// Check http://www.songho.ca/opengl/gl_projectionmatrix.html#comment-1308374035
+	float back = 10.0f;	// See above link
 	_camera.init(_screenWidth, _screenHeight, foV, aspectRatio, front, back);
 	glm::vec3 position{0.0f, 0.0f, 0.0f};
 	_camera.setPosition(position);
@@ -79,15 +73,8 @@ void RubikGame::gameLoop()
 	}
 }
 
-void setVertexData(MatrixEngine::Vertex3D* vertex, float x, float y, float z, float u, float v)
-{
-	vertex->setPosition(x, y, z);
-	vertex->setUV(u, v);
-}
-
 void drawAxes()
 {
-	//std::string texturePath = "Textures/PNG/RedSquare80x80.png";
 	GLuint _vboID = 0;
 	GLuint _vao = 0;
 	float x = 0.0f;
@@ -96,7 +83,6 @@ void drawAxes()
 	float w = 3.0f;
 	float h = 3.0f;
 	float d = 3.0f;
-	//MatrixEngine::GLTexture _texture = MatrixEngine::ResourceManager::getTexture(texturePath);
 
 	if (_vboID == 0)
 	{
@@ -105,7 +91,6 @@ void drawAxes()
 
 	MatrixEngine::Vertex3D vertexData[6];
 
-	//first 
 	vertexData[0].setPosition(x, y, z);
 	vertexData[1].setPosition(x + w, y, z);
 
@@ -114,7 +99,6 @@ void drawAxes()
 
 	vertexData[4].setPosition(x, y, z);
 	vertexData[5].setPosition(x, y, z + w);
-
 
 	vertexData[0].setColor(255, 0, 0, 255);
 	vertexData[1].setColor(255, 0, 0, 255);
@@ -134,7 +118,7 @@ void drawAxes()
 	}
 	glBindVertexArray(_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, _vboID); //TODO: added via comparison to Sprite, not sure if it's correct
+	glBindBuffer(GL_ARRAY_BUFFER, _vboID);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -143,8 +127,6 @@ void drawAxes()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(MatrixEngine::Vertex3D), (void*)offsetof(MatrixEngine::Vertex3D, position));
 	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(MatrixEngine::Vertex3D), (void*)offsetof(MatrixEngine::Vertex3D, color));
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(MatrixEngine::Vertex3D), (void*)offsetof(MatrixEngine::Vertex3D, uv));
-
-	//glBindTexture(GL_TEXTURE_2D, _texture.id);
 
 	glDrawArrays(GL_LINES, 0, 6);
 	glDisableVertexAttribArray(0);
@@ -167,12 +149,8 @@ void RubikGame::drawGame()
 	glUniform1i(textureLocation, 0);
 
 	GLint pLocation = _colorProgram.getUniformLocation("P");
-	//glm::mat4 cameraMatrix = glm::perspective(glm::radians(45.0f), 1600.0f / 900.0f, 1.0f, 10.0f);
 	glm::mat4 cameraMatrix = _camera.getProjectionMatrix();
-	//glm::mat4 cameraMatrix2D = _camera2D.getCameraMatrix();
 	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-	//glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix2D[0][0]));
-
 
 	GLint vLocation = _colorProgram.getUniformLocation("V");
 
@@ -202,36 +180,9 @@ void RubikGame::drawGame()
 	MatrixEngine::Voxel voxel2;
 	voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
 	voxel2.draw();
-
-	///////////////////////
 	
 	drawAxes();
 
-	/////////////////////////////
-
-	/*	
-	_spriteBatch.begin();
-
-	glm::vec4 position(0.0f, 0.0f, 50.0f, 50.0f);
-	glm::vec4 position2(55.0f, 15.0f, 30.0f, 30.0f);
-	glm::vec4 uv(0.0f, 0.0f, 1.0f, 1.0f);
-	static MatrixEngine::GLTexture texture = MatrixEngine::ResourceManager::getTexture("Textures/PNG/HeartAyse800x800.png");
-	static MatrixEngine::GLTexture texture2 = MatrixEngine::ResourceManager::getTexture("Textures/PNG/RedSquare80x80.png");
-
-	MatrixEngine::Color color;
-	color.r = 255;
-	color.g = 255;
-	color.b = 255;
-	color.a = 255;
-
-	_spriteBatch.draw(position, uv, texture.id, 0.0f, color);
-	_spriteBatch.draw(position2, uv, texture2.id, 0.0f, color);
-
-	_spriteBatch.end();
-
-	_spriteBatch.renderBatch();
-	
-	*/
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	_colorProgram.unuse();
@@ -290,31 +241,7 @@ void RubikGame::processInput()
 	if (_inputManager.isKeyPressed(SDLK_e))
 	{
 		_camera.setScale(_camera.getScale() - SCALE_SPEED);
-	}/*
-	if (_inputManager.isKeyPressed(SDLK_w))
-	{
-		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(0.0f, CAMERA_SPEED));
 	}
-	if (_inputManager.isKeyPressed(SDLK_s))
-	{
-		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(0.0f, -CAMERA_SPEED));
-	}
-	if (_inputManager.isKeyPressed(SDLK_d))
-	{
-		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(CAMERA_SPEED, 0.0f));
-	}
-	if (_inputManager.isKeyPressed(SDLK_a))
-	{
-		_camera2D.setPosition(_camera2D.getPosition() + glm::vec2(-CAMERA_SPEED, 0.0f));
-	}
-	if (_inputManager.isKeyPressed(SDLK_q))
-	{
-		_camera2D.setScale(_camera2D.getScale() + SCALE_SPEED);
-	}
-	if (_inputManager.isKeyPressed(SDLK_e))
-	{
-		_camera2D.setScale(_camera2D.getScale() - SCALE_SPEED);
-	}*/
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
 	{
 		_gameState = GameState::EXIT;
