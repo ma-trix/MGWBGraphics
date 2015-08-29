@@ -17,7 +17,9 @@ namespace MatrixEngine {
 		{
 			_position = newPosition;
 			_needsMatrixUpdate = true;
-		};
+		}
+
+		void zoom(int mouseWheelMotion);
 		void setScale(float newScale)
 		{
 			_scale = newScale;
@@ -30,6 +32,12 @@ namespace MatrixEngine {
 		glm::mat4 getProjectionMatrix() { return _frustumMatrix; };
 
 	private:
+		const double _DEG2RAD = 3.14159265 / 180;
+		const float _MINFOV = 1.0f;
+		const float _MAXFOV = 45.0f;
+
+		void Camera3D::createFrustumMatrix();
+		void calculateProjection();
 		int _screenWidth;
 		int _screenHeight;
 		bool _needsMatrixUpdate;
@@ -38,5 +46,12 @@ namespace MatrixEngine {
 		glm::mat4 _cameraMatrix;
 		glm::mat4 _orthoMatrix;
 		glm::mat4 _frustumMatrix;
+		double _tangent;
+		double _height;
+		double _width;
+		float _fov;
+		float _front;
+		float _back;
+		float _aspectRatio;
 	};
 }

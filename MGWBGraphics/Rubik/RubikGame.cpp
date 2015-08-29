@@ -216,6 +216,9 @@ void RubikGame::processInput()
 		case SDL_MOUSEBUTTONUP:
 			_inputManager.releaseKey(event.button.button);
 			break;
+		case SDL_MOUSEWHEEL:
+			_inputManager.mouseWheelMotion(event.wheel.y);
+			break;
 		}
 	}
 	if (_inputManager.isKeyPressed(SDLK_w))
@@ -241,6 +244,10 @@ void RubikGame::processInput()
 	if (_inputManager.isKeyPressed(SDLK_e))
 	{
 		_camera.setScale(_camera.getScale() - SCALE_SPEED);
+	}
+	if(_inputManager.wasWheelMoved())
+	{
+		_camera.zoom(_inputManager.getMouseWheelMotion());
 	}
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
 	{
