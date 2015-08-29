@@ -212,9 +212,12 @@ void RubikGame::processInput()
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			_inputManager.pressKey(event.button.button);
+			_savedMouseCoords = _inputManager.getMouseCoords();
+			_inputManager.arcBallOn();
 			break;
 		case SDL_MOUSEBUTTONUP:
 			_inputManager.releaseKey(event.button.button);
+			_inputManager.arcBallOff();
 			break;
 		case SDL_MOUSEWHEEL:
 			_inputManager.mouseWheelMotion(event.wheel.y);
@@ -248,6 +251,18 @@ void RubikGame::processInput()
 	if(_inputManager.wasWheelMoved())
 	{
 		_camera.zoom(_inputManager.getMouseWheelMotion());
+	}
+	if(_inputManager.isArcBallON())
+	{
+		auto currentMouseCoords = _inputManager.getMouseCoords();
+		if(currentMouseCoords.x != _savedMouseCoords.x || currentMouseCoords.y != _savedMouseCoords.y)
+		{
+			auto va = _camera.getArcBallVector(currentMouseCoords);
+			auto vb = _camera.getArcBallVector(_savedMouseCoords);
+			auto angle = acos(glm::min(1.0f, glm::dot(va, vb)));
+			auto axisInCameraCoord = glm::cross(va, vb);
+			auto camera2object = glm::inverse(_camera.getProjectionMatrix()) * glm::mat3(mesh.object2world);
+		}
 	}
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
 	{

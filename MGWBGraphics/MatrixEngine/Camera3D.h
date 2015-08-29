@@ -30,6 +30,8 @@ namespace MatrixEngine {
 		float getScale() { return _scale; }
 		glm::mat4 getCameraMatrix() { return _cameraMatrix; }
 		glm::mat4 getProjectionMatrix() { return _frustumMatrix; };
+		
+		glm::vec3 getArcBallVector(glm::vec2 mouse);
 
 	private:
 		const double _DEG2RAD = 3.14159265 / 180;

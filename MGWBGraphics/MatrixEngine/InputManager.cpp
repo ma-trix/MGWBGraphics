@@ -62,4 +62,25 @@ namespace MatrixEngine
 		_mouseWheelMotion = 0;
 		return value;
 	}
+
+	void InputManager::saveMouseLocation()
+	{
+		_savedMouseCoords = _mouseCoords;
+	}
+
+	void InputManager::arcBallOn()
+	{
+		saveMouseLocation();
+		_arcBall = true;
+	}
+
+	void InputManager::arcBallOff()
+	{
+		_arcBall = false;
+	}
+
+	bool InputManager::isArcBallON()
+	{
+		return _arcBall;
+	}
 }
