@@ -25,15 +25,17 @@ namespace MatrixEngine {
 		}
 		glBindVertexArray(_vao);
 		
-		glBindBuffer(GL_ARRAY_BUFFER, _vboID); //TODO: added via comparison to Sprite, not sure if it's correct
+		glBindVertexBuffer(0, _vboID, offsetof(Vertex3D, position), sizeof(Vertex3D));
 
 		glEnableVertexAttribArray(0);
+		glVertexAttribFormat(0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex3D, position));
+		glVertexAttribBinding(0, 0);
 		glEnableVertexAttribArray(1);
+		glVertexAttribFormat(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, offsetof(Vertex3D, color));
+		glVertexAttribBinding(1, 0);
 		glEnableVertexAttribArray(2);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)offsetof(Vertex3D, position));
-		glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex3D), (void*)offsetof(Vertex3D, color));
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)offsetof(Vertex3D, uv));
+		glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex3D, uv));
+		glVertexAttribBinding(2, 0);
 
 		for (int i = 0; i < 6; i++) 
 		{
