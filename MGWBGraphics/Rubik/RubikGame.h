@@ -6,6 +6,7 @@
 #include <MatrixEngine/InputManager.h>
 #include <MatrixEngine/Camera3D.h>
 #include <MatrixEngine/Camera2D.h>
+#include <MatrixEngine/Voxel.h>
 
 enum class GameState { PLAY, EXIT };
 
@@ -17,6 +18,7 @@ public:
 	void run();
 	void initSystems();
 	void initShaders();
+	void initVoxels();
 	void gameLoop();
 	void drawGame();
 	void processInput();
@@ -38,4 +40,16 @@ private:
 	GLuint vbo_cube_vertices;
 	GLuint vbo_cube_colors;
 	glm::vec2 _savedMouseCoords;
+
+	glm::mat4 _projection;
+	glm::mat4 _view;
+	glm::mat4 _model;
+
+	MatrixEngine::Voxel _voxel;
+	MatrixEngine::Voxel _voxel2;
+
+	GLint _pLoc;
+	GLint _vLoc;
+	GLint _mLoc;
+	GLint _texLoc;
 };
