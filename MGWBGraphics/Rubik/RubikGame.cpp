@@ -17,6 +17,7 @@ RubikGame::~RubikGame()
 void RubikGame::run()
 {
 	initSystems();
+	initVoxels();
 	gameLoop();
 }
 
@@ -51,8 +52,30 @@ void RubikGame::initShaders()
 	_colorProgram.linkShaders();
 }
 
+void RubikGame::initVoxels()
+{
+	_view = glm::lookAt(
+		glm::vec3(2.5f, 2.5f, 2.5f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+		);
+
+	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
+	auto texture_path2 = "Textures/PNG/Face2Blue80x80.png";
+	auto texture_path3 = "Textures/PNG/Face3Green80x80.png";
+	auto texture_path4 = "Textures/PNG/Face4Red80x80.png";
+	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
+	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
+
+
+	_voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
+	_voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
+
+}
+
 void RubikGame::gameLoop()
 {
+
 	while(_gameState != GameState::EXIT)
 	{
 		_fpsLimiter.begin();
@@ -145,41 +168,23 @@ void RubikGame::drawGame()
 
 	_colorProgram.use();
 	glActiveTexture(GL_TEXTURE0);
-	GLint textureLocation = _colorProgram.getUniformLocation("mySampler");
-	glUniform1i(textureLocation, 0);
+	_texLoc = _colorProgram.getUniformLocation("mySampler");
+	glUniform1i(_texLoc, 0);
 
-	GLint pLocation = _colorProgram.getUniformLocation("P");
-	glm::mat4 cameraMatrix = _camera.getProjectionMatrix();
-	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
+	_pLoc = _colorProgram.getUniformLocation("P");
+	_projection = _camera.getProjectionMatrix();
+	glUniformMatrix4fv(_pLoc, 1, GL_FALSE, &(_projection[0][0]));
+	
+	_vLoc = _colorProgram.getUniformLocation("V");
+	//
+	glUniformMatrix4fv(_vLoc, 1, GL_FALSE, &(_view[0][0]));
+	
+	_mLoc = _colorProgram.getUniformLocation("M");
+	_model = _camera.getCameraMatrix();
+	glUniformMatrix4fv(_mLoc, 1, GL_FALSE, &(_model[0][0]));
 
-	GLint vLocation = _colorProgram.getUniformLocation("V");
-
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(2.5f, 2.5f, 2.5f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-		);
-	glUniformMatrix4fv(vLocation, 1, GL_FALSE, &(view[0][0]));
-
-	GLint mLocation = _colorProgram.getUniformLocation("M");
-
-	glm::mat4 model = _camera.getCameraMatrix();
-	glUniformMatrix4fv(mLocation, 1, GL_FALSE, &(model[0][0]));
-
-	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
-	auto texture_path2 = "Textures/PNG/Face2Blue80x80.png";
-	auto texture_path3 = "Textures/PNG/Face3Green80x80.png";
-	auto texture_path4 = "Textures/PNG/Face4Red80x80.png";
-	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
-	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
-
-	MatrixEngine::Voxel voxel;
-	voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
-	voxel.draw();
-
-	MatrixEngine::Voxel voxel2;
-	voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
-	voxel2.draw();
+	_voxel.draw();
+	_voxel2.draw();
 	
 	drawAxes();
 
@@ -261,7 +266,7 @@ void RubikGame::processInput()
 			auto vb = _camera.getArcBallVector(_savedMouseCoords);
 			auto angle = acos(glm::min(1.0f, glm::dot(va, vb)));
 			auto axisInCameraCoord = glm::cross(va, vb);
-			auto camera2object = glm::inverse(_camera.getProjectionMatrix()) * glm::mat3(mesh.object2world);
+			//auto camera2object = glm::inverse(_camera.getProjectionMatrix()) * glm::mat3(mesh.object2world);
 		}
 	}
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
