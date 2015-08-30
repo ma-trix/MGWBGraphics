@@ -1,7 +1,12 @@
+#pragma once
+
 #include "Voxel.h"
 #include "ResourceManager.h"
 #include "Vertex.h"
+#include <glm/detail/type_vec4.hpp>
+#include <glm/mat4x4.hpp>
 
+#include <glm/gtx/rotate_vector.hpp>
 
 namespace MatrixEngine {
 	Voxel::Voxel()
@@ -24,6 +29,7 @@ namespace MatrixEngine {
 
 	void Voxel::draw()
 	{
+
 		if (_vao == 0)
 		{
 			glGenVertexArrays(1, &_vao);
@@ -57,141 +63,163 @@ namespace MatrixEngine {
 		glBindVertexArray(0);
 	}
 
+	void Voxel::rotate(float angle, glm::vec3 axisInObjectCoord)
+	{
+		_object2world = glm::rotate(_object2world, glm::degrees(angle), axisInObjectCoord);
+		_spatialDiagonal = glm::rotate(_spatialDiagonal, glm::degrees(angle), axisInObjectCoord);
+		updateSpatialDiagonalPosition();
+		updateVertexPositions();
+		setAllVertexData();
+		bufferVertexData();
+	}
+
+	void Voxel::translate(glm::vec3 v)
+	{
+		_object2world = glm::translate(_object2world, v);
+		updateSpatialDiagonalPosition();
+		updateVertexPositions();
+		setAllVertexData();
+		bufferVertexData();
+
+	}
+
+	void Voxel::resetPosition()
+	{
+		_object2world = glm::mat4(1.0f);
+		updateSpatialDiagonalPosition();
+		updateVertexPositions();
+		setAllVertexData();
+		bufferVertexData();
+	}
+
+	std::string Voxel::printPosition()
+	{
+		std::string pos;
+
+		pos.append(std::to_string(_lbf.x));
+		pos.append(",");
+		pos.append(std::to_string(_lbf.y));
+		pos.append(",");
+		pos.append(std::to_string(_lbf.z));
+		pos.append(",");
+		return pos;
+	}
+
 	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string singleTexturePath)
 	{
 		init(x, y, z, width, height, depth, { singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath });
 	}
 
+	void Voxel::updateVertexPositions()
+	{
+		Position3D A = { _rtb.x, _rtb.y, _rtb.z };
+		Position3D B = { _lbf.x, _rtb.y, _rtb.z };
+		Position3D C = { _lbf.x, _rtb.y, _lbf.z };
+		Position3D D = { _rtb.x, _rtb.y, _lbf.z };
+
+		Position3D E = { _lbf.x, _lbf.y, _lbf.z };
+		Position3D F = { _rtb.x, _lbf.y, _lbf.z };
+		Position3D G = { _rtb.x, _lbf.y, _rtb.z };
+		Position3D H = { _lbf.x, _lbf.y, _rtb.z };
+
+		_vertices[0] = A;
+		_vertices[1] = B;
+		_vertices[2] = C;
+		_vertices[3] = D;
+		_vertices[4] = E;
+		_vertices[5] = F;
+		_vertices[6] = G;
+		_vertices[7] = H;
+	}
+
+	void Voxel::updateFaceSetup()
+	{
+		Face top	=	{ 0, 0, 1, 2, 3 };
+		Face front	=	{ 1, 3, 2, 4, 5 };
+		Face right	=	{ 2, 0, 3, 5, 6 };
+		Face back	=	{ 3, 1, 0, 6, 7 };
+		Face left	=	{ 4, 2, 1, 7, 4 };
+		Face bottom =	{ 5, 5, 4, 7, 6 };
+
+		_faces[0] = top;
+		_faces[1] = front;
+		_faces[2] = right;
+		_faces[3] = back;
+		_faces[4] = left;
+		_faces[5] = bottom;
+	}
+
+	void Voxel::updateSpatialDiagonalPosition()
+	{
+		glm::vec4 tmpLbf = glm::vec4(1.0f);
+		tmpLbf = _object2world * tmpLbf;
+		_lbf = { tmpLbf.x, tmpLbf.y, tmpLbf.z };
+		glm::vec4 tmpRtb = tmpLbf + _spatialDiagonal;
+		_rtb = { tmpRtb.x, tmpRtb.y, tmpRtb.z };
+
+		/*
+		_lbf = { _object2world[3][0], _object2world[3][1], _object2world[3][2] };
+		_rtb = {_lbf.x + _dimensions.x, _lbf.y + _dimensions.y, _lbf.z + _dimensions.z};
+		*/
+	}
+
 	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string(&texturePaths)[6])
 	{
+		_object2world = glm::mat4(1.0f);
+		glm::vec3 origin = { x, y, z };
+		_object2world = glm::translate(_object2world, origin);
+		_dimensions = { width, height, depth };
+		_spatialDiagonal = { width, height, depth, 1.0f };
+		updateSpatialDiagonalPosition();
+
+		/*_object2world[3][0] = _lbf.x;
+		_object2world[3][1] = _lbf.y;
+		_object2world[3][2] = _lbf.z;
+		*/
+		updateFaceSetup();
+		updateVertexPositions();
 		loadFaceTextures(texturePaths);
 		if (_vboID == 0) { glGenBuffers(1, &_vboID); }
-		setAllVertexData(x, y, z, width, height, depth);
+		setAllVertexData();
+		bufferVertexData();
+
 	}
 
-	void setVertexData(Vertex3D &vertex, float x, float y, float z, float u, float v, GLuint r, GLuint g, GLuint b, GLuint a)
+	void setVertexData(Vertex3D &vertex, Position3D position, UV uv, Color color)
 	{
-		vertex.setPosition(x, y, z);
-		vertex.setUV(u, v);
-		vertex.setColor(r, g, b, a);
+		vertex.position = position;
+		vertex.uv = uv;
+		vertex.color = color;
 	}
 
-	void Voxel::setAllVertexData(float x, float y, float z, float width, float height, float depth)
+	void Voxel::setAllVertexData()
 	{
 		Color color;
 		color.set(255, 255, 255, 255);
-		Vertex3D vertexData[36];
-		setVertexDataFace1Top(x, y, z, width, height, depth, color, vertexData);
-		setVertexDataFace2Front(x, y, z, width, height, color, vertexData);
-		setVertexDataFace3Right(x, y, z, width, height, depth, color, vertexData);
-		setVertexDataFace4Back(x, y, z, width, height, depth, color, vertexData);
-		setVertexDataFace5Left(x, y, z, height, depth, color, vertexData);
-		setVertexDataFace6Bottom(x, y, z, width, depth, color, vertexData);
+		for (int i = 0; i < 6; i++)
+		{
+			setVertexDataForFace(i, color);
+		}
+	}
+
+	void Voxel::bufferVertexData()
+	{
 		glBindBuffer(GL_ARRAY_BUFFER, _vboID);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(_vertexData), _vertexData, GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void Voxel::setVertexDataFace1Top(float x, float y, float z, float width, float height, float depth, Color color, Vertex3D vertexData[36])
+	void Voxel::setVertexDataForFace(int faceId, Color color)
 	{
-		// vertex A
-		setVertexData(vertexData[0], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex B
-		setVertexData(vertexData[1], x, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex C
-		setVertexData(vertexData[2], x, y + height, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-
-		// vertex C
-		setVertexData(vertexData[3], x, y + height, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex D
-		setVertexData(vertexData[4], x + width, y + height, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex A
-		setVertexData(vertexData[5], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-	}
-
-	void Voxel::setVertexDataFace2Front(float x, float y, float z, float width, float height, Color color, Vertex3D vertexData[36])
-	{
-		// vertex D
-		setVertexData(vertexData[6], x + width, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex C
-		setVertexData(vertexData[7], x, y + height, z, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex E
-		setVertexData(vertexData[8], x, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-
-		// vertex E
-		setVertexData(vertexData[9], x, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex F
-		setVertexData(vertexData[10], x, y + width, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex D
-		setVertexData(vertexData[11], x + width, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-	}
-
-	void Voxel::setVertexDataFace3Right(float x, float y, float z, float width, float height, float depth, Color color, Vertex3D vertexData[36])
-	{
-		// vertex A
-		setVertexData(vertexData[12], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex D
-		setVertexData(vertexData[13], x + width, y + height, z, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex F
-		setVertexData(vertexData[14], x + width, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-
-		// vertex F
-		setVertexData(vertexData[15], x + width, y, z, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex G
-		setVertexData(vertexData[16], x + width, y, z + depth, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex A
-		setVertexData(vertexData[17], x + width, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-	}
-
-	void Voxel::setVertexDataFace4Back(float x, float y, float z, float width, float height, float depth, Color color, Vertex3D vertexData[36])
-	{
-		// vertex B
-		setVertexData(vertexData[18], x, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex A
-		setVertexData(vertexData[19], x + width, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex F
-		setVertexData(vertexData[20], x + width, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-
-		// vertex F
-		setVertexData(vertexData[21], x + width, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex H
-		setVertexData(vertexData[22], x, y, z + depth, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex A
-		setVertexData(vertexData[23], x, y + height, z + depth, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-	}
-
-	void Voxel::setVertexDataFace5Left(float x, float y, float z, float height, float depth, Color color, Vertex3D vertexData[36])
-	{
-		// vertex C
-		setVertexData(vertexData[24], x, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex B
-		setVertexData(vertexData[25], x, y + height, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex H
-		setVertexData(vertexData[26], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-
-		// vertex H
-		setVertexData(vertexData[27], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex E
-		setVertexData(vertexData[28], x, y, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex C
-		setVertexData(vertexData[29], x, y + height, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-	}
-
-	void Voxel::setVertexDataFace6Bottom(float x, float y, float z, float width, float depth, Color color, Vertex3D vertexData[36])
-	{
-		// vertex F
-		setVertexData(vertexData[30], x + width, y, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex E
-		setVertexData(vertexData[31], x, y, z, 1.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex H
-		setVertexData(vertexData[32], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-
-		// vertex H
-		setVertexData(vertexData[33], x, y, z + depth, 0.0f, 0.0f, color.r, color.g, color.b, color.a);
-		// vertex G
-		setVertexData(vertexData[34], x + width, y, z + depth, 0.0f, 1.0f, color.r, color.g, color.b, color.a);
-		// vertex F
-		setVertexData(vertexData[35], x + width, y, z, 1.0f, 1.0f, color.r, color.g, color.b, color.a);
+		auto faceOffset = faceId * _FACECOUNT;
+		
+		setVertexData(_vertexData[0 + faceOffset], _vertices[_faces[faceId].vertices[0]], _TOPRIGHT, color);
+		setVertexData(_vertexData[1 + faceOffset], _vertices[_faces[faceId].vertices[1]], _TOPLEFT,	color);
+		setVertexData(_vertexData[2 + faceOffset], _vertices[_faces[faceId].vertices[2]], _BOTLEFT, color);
+															 
+		setVertexData(_vertexData[3 + faceOffset], _vertices[_faces[faceId].vertices[2]], _BOTLEFT, color);
+		setVertexData(_vertexData[4 + faceOffset], _vertices[_faces[faceId].vertices[3]], _BOTRIGHT, color);
+		setVertexData(_vertexData[5 + faceOffset], _vertices[_faces[faceId].vertices[0]], _TOPRIGHT, color);
 	}
 
 	void Voxel::loadFaceTextures(const std::string(&texturePaths)[6])
