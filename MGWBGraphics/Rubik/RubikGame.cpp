@@ -57,7 +57,7 @@ void RubikGame::initVoxels()
 	_view = glm::lookAt(
 		glm::vec3(2.5f, 2.5f, 2.5f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f)
+		glm::vec3(0.0f, 1.0f, 0.0f)
 		);
 
 	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
@@ -67,9 +67,9 @@ void RubikGame::initVoxels()
 	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
 	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
 
-
-	_voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
-	_voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
+	_voxel.init(-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
+	//_voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
+	//_voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
 
 }
 
@@ -90,7 +90,8 @@ void RubikGame::gameLoop()
 		frameCounter++;
 		if(frameCounter == 60)
 		{
-			std::cout << _fps << std::endl;
+			//std::cout << _fps << std::endl;
+			std::cout << _voxel.printPosition() << std::endl;
 			frameCounter = 0;
 		}
 	}
@@ -184,7 +185,7 @@ void RubikGame::drawGame()
 	glUniformMatrix4fv(_mLoc, 1, GL_FALSE, &(_model[0][0]));
 
 	_voxel.draw();
-	_voxel2.draw();
+	//_voxel2.draw();
 	
 	drawAxes();
 
@@ -229,29 +230,40 @@ void RubikGame::processInput()
 			break;
 		}
 	}
+	const float VOXEL_SPEED = 0.1f;
 	if (_inputManager.isKeyPressed(SDLK_w))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, CAMERA_SPEED));
+		//_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, CAMERA_SPEED));
+		_voxel.translate(glm::vec3(-VOXEL_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_s))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, -CAMERA_SPEED));
+		//_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, -CAMERA_SPEED));
+		_voxel.translate(glm::vec3(VOXEL_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_d))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(CAMERA_SPEED, 0.0f, 0.0f));
+//		_camera.setPosition(_camera.getPosition() + glm::vec3(CAMERA_SPEED, 0.0f, 0.0f));
+		_voxel.translate(glm::vec3(0.0f, VOXEL_SPEED, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_a))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(-CAMERA_SPEED, 0.0f, 0.0f));
+//		_camera.setPosition(_camera.getPosition() + glm::vec3(-CAMERA_SPEED, 0.0f, 0.0f));
+		_voxel.translate(glm::vec3(0.0f, -VOXEL_SPEED, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_q))
 	{
-		_camera.setScale(_camera.getScale() + SCALE_SPEED);
+//		_camera.setScale(_camera.getScale() + SCALE_SPEED);
+		_voxel.translate(glm::vec3(0.0f, 0.0f, VOXEL_SPEED));
 	}
 	if (_inputManager.isKeyPressed(SDLK_e))
 	{
-		_camera.setScale(_camera.getScale() - SCALE_SPEED);
+//		_camera.setScale(_camera.getScale() - SCALE_SPEED);
+		_voxel.translate(glm::vec3(0.0f, 0.0f, -VOXEL_SPEED));
+	}
+	if (_inputManager.isKeyPressed(SDLK_r))
+	{
+		_voxel.resetPosition();
 	}
 	if(_inputManager.wasWheelMoved())
 	{
@@ -260,13 +272,17 @@ void RubikGame::processInput()
 	if(_inputManager.isArcBallON())
 	{
 		auto currentMouseCoords = _inputManager.getMouseCoords();
+		//TODO: When returning to coordinates i started at, the test won't be passed. Rethink.
 		if(currentMouseCoords.x != _savedMouseCoords.x || currentMouseCoords.y != _savedMouseCoords.y)
 		{
 			auto va = _camera.getArcBallVector(currentMouseCoords);
 			auto vb = _camera.getArcBallVector(_savedMouseCoords);
 			auto angle = acos(glm::min(1.0f, glm::dot(va, vb)));
-			auto axisInCameraCoord = glm::cross(va, vb);
-			//auto camera2object = glm::inverse(_camera.getProjectionMatrix()) * glm::mat3(mesh.object2world);
+			glm::vec3 axisInCameraCoord = glm::cross(va, vb);
+			auto camera2object = glm::inverse(_camera.getProjectionMatrix()) * _voxel.getObject2world();
+			glm::vec4 axis_in_object_coord = camera2object * glm::vec4(axisInCameraCoord, 1.0f);
+			glm::vec3 axisInObjectCoord = { axis_in_object_coord.x, axis_in_object_coord.y, axis_in_object_coord.z };
+			_voxel.rotate(angle, axisInObjectCoord);
 		}
 	}
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
