@@ -66,12 +66,14 @@ namespace MatrixEngine {
 
 	void Voxel::rotate(float angle, glm::vec3 axisInObjectCoord)
 	{
-		_object2world = glm::rotate(_object2world, glm::degrees(angle), axisInObjectCoord);
-//		_spatialDiagonal = glm::rotate(_spatialDiagonal, glm::degrees(angle), axisInObjectCoord);
-//		updateSpatialDiagonalPosition();
-		updateVertexPositions();
-		setAllVertexData();
-		bufferVertexData();
+		// angleAxis(degrees(RotationAngle), RotationAxis)
+		glm::quat q = glm::angleAxis(glm::degrees(angle), axisInObjectCoord);
+		rotate(q);
+//		_object2world = glm::rotate(_object2world, glm::degrees(angle), axisInObjectCoord);
+//		
+//		updateVertexPositions();
+//		setAllVertexData();
+//		bufferVertexData();
 	}
 
 	void Voxel::translate(glm::vec3 v)
@@ -124,14 +126,14 @@ namespace MatrixEngine {
 			_origin.y + (_dimensions.y * 0.5f),
 			_origin.z + (_dimensions.z * 0.5f),
 			1 };
-		//TODO: remove _lbf or do something else with them to remove duplication
-		_lbf = {lbf.x, lbf.y, lbf.z};
-		//TODO: remove _rtb
-		_rtb = {rtb.x, rtb.y, rtb.z};
-
 
 		lbf = getObject2world() * lbf;
 		rtb = getObject2world() * rtb;
+
+		//TODO: remove _lbf or do something else with them to remove duplication
+		_lbf = { lbf.x, lbf.y, lbf.z };
+		//TODO: remove _rtb
+		_rtb = { rtb.x, rtb.y, rtb.z };
 
 		Position3D A = { rtb.x, rtb.y, rtb.z };
 		Position3D B = { lbf.x, rtb.y, rtb.z };
@@ -234,8 +236,9 @@ namespace MatrixEngine {
 
 	void Voxel::rotate(glm::quat rotation)
 	{
-		_orientation = rotation * _orientation;
-		_rotationM = glm::toMat4(rotation) * _rotationM;
+		glm::quat normalized = glm::normalize(rotation);
+		_orientation = normalized  * _orientation;
+		_rotationM = glm::toMat4(normalized) * _rotationM;
 		O2wNeedsUpdate();
 		updateVertexPositions();
 		setAllVertexData();
