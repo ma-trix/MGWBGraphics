@@ -7,6 +7,7 @@
 #include <glm/mat4x4.hpp>
 
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 namespace MatrixEngine {
 	Voxel::Voxel()
@@ -66,8 +67,8 @@ namespace MatrixEngine {
 	void Voxel::rotate(float angle, glm::vec3 axisInObjectCoord)
 	{
 		_object2world = glm::rotate(_object2world, glm::degrees(angle), axisInObjectCoord);
-		_spatialDiagonal = glm::rotate(_spatialDiagonal, glm::degrees(angle), axisInObjectCoord);
-		updateSpatialDiagonalPosition();
+//		_spatialDiagonal = glm::rotate(_spatialDiagonal, glm::degrees(angle), axisInObjectCoord);
+//		updateSpatialDiagonalPosition();
 		updateVertexPositions();
 		setAllVertexData();
 		bufferVertexData();
@@ -76,7 +77,7 @@ namespace MatrixEngine {
 	void Voxel::translate(glm::vec3 v)
 	{
 		_object2world = glm::translate(_object2world, v);
-		updateSpatialDiagonalPosition();
+//		updateSpatialDiagonalPosition();
 		updateVertexPositions();
 		setAllVertexData();
 		bufferVertexData();
@@ -86,7 +87,7 @@ namespace MatrixEngine {
 	void Voxel::resetPosition()
 	{
 		_object2world = glm::mat4(1.0f);
-		updateSpatialDiagonalPosition();
+//		updateSpatialDiagonalPosition();
 		updateVertexPositions();
 		setAllVertexData();
 		bufferVertexData();
@@ -105,22 +106,43 @@ namespace MatrixEngine {
 		return pos;
 	}
 
-	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string singleTexturePath)
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string texPath)
 	{
-		init(x, y, z, width, height, depth, { singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath, singleTexturePath });
+		init(x, y, z, width, height, depth, { texPath, texPath, texPath, texPath, texPath, texPath });
 	}
 
+	//TODO: Vertex positions should be updated on the GPU?
 	void Voxel::updateVertexPositions()
 	{
-		Position3D A = { _rtb.x, _rtb.y, _rtb.z };
-		Position3D B = { _lbf.x, _rtb.y, _rtb.z };
-		Position3D C = { _lbf.x, _rtb.y, _lbf.z };
-		Position3D D = { _rtb.x, _rtb.y, _lbf.z };
+		glm::vec4 lbf = {
+			_origin.x - (_dimensions.x * 0.5f),
+			_origin.y - (_dimensions.y * 0.5f),
+			_origin.z - (_dimensions.z * 0.5f),
+			1 };
+		
+		glm::vec4 rtb = {
+			_origin.x + (_dimensions.x * 0.5f),
+			_origin.y + (_dimensions.y * 0.5f),
+			_origin.z + (_dimensions.z * 0.5f),
+			1 };
+		//TODO: remove _lbf or do something else with them to remove duplication
+		_lbf = {lbf.x, lbf.y, lbf.z};
+		//TODO: remove _rtb
+		_rtb = {rtb.x, rtb.y, rtb.z};
 
-		Position3D E = { _lbf.x, _lbf.y, _lbf.z };
-		Position3D F = { _rtb.x, _lbf.y, _lbf.z };
-		Position3D G = { _rtb.x, _lbf.y, _rtb.z };
-		Position3D H = { _lbf.x, _lbf.y, _rtb.z };
+
+		lbf = getObject2world() * lbf;
+		rtb = getObject2world() * rtb;
+
+		Position3D A = { rtb.x, rtb.y, rtb.z };
+		Position3D B = { lbf.x, rtb.y, rtb.z };
+		Position3D C = { lbf.x, rtb.y, lbf.z };
+		Position3D D = { rtb.x, rtb.y, lbf.z };
+
+		Position3D E = { lbf.x, lbf.y, lbf.z };
+		Position3D F = { rtb.x, lbf.y, lbf.z };
+		Position3D G = { rtb.x, lbf.y, rtb.z };
+		Position3D H = { lbf.x, lbf.y, rtb.z };
 
 		_vertices[0] = A;
 		_vertices[1] = B;
@@ -149,33 +171,14 @@ namespace MatrixEngine {
 		_faces[5] = bottom;
 	}
 
-	void Voxel::updateSpatialDiagonalPosition()
-	{
-		glm::vec4 tmpLbf = glm::vec4(1.0f);
-		tmpLbf = _object2world * tmpLbf;
-		_lbf = { tmpLbf.x, tmpLbf.y, tmpLbf.z };
-		glm::vec4 tmpRtb = tmpLbf + _spatialDiagonal;
-		_rtb = { tmpRtb.x, tmpRtb.y, tmpRtb.z };
-
-		/*
-		_lbf = { _object2world[3][0], _object2world[3][1], _object2world[3][2] };
-		_rtb = {_lbf.x + _dimensions.x, _lbf.y + _dimensions.y, _lbf.z + _dimensions.z};
-		*/
-	}
-
 	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string(&texturePaths)[6])
 	{
-		_object2world = glm::mat4(1.0f);
-		glm::vec3 origin = { x, y, z };
-		_object2world = glm::translate(_object2world, origin);
+		_orientation = glm::quat(glm::vec3(0, 0, 0));
+		_rotationM = glm::toMat4(_orientation);
+		_origin = { x, y, z };
+		_translationM = glm::translate(glm::mat4(1.0f), _origin);
+		_object2world = _translationM * _rotationM;
 		_dimensions = { width, height, depth };
-		_spatialDiagonal = { width, height, depth, 1.0f };
-		updateSpatialDiagonalPosition();
-
-		/*_object2world[3][0] = _lbf.x;
-		_object2world[3][1] = _lbf.y;
-		_object2world[3][2] = _lbf.z;
-		*/
 		updateFaceSetup();
 		updateVertexPositions();
 		loadFaceTextures(texturePaths);
@@ -228,5 +231,15 @@ namespace MatrixEngine {
 		{
 			_face[i] = ResourceManager::getTexture(texturePaths[i]);
 		}
+	}
+
+	void Voxel::rotate(glm::quat rotation)
+	{
+		_orientation = rotation * _orientation;
+		_rotationM = glm::toMat4(rotation) * _rotationM;
+		O2wNeedsUpdate();
+		updateVertexPositions();
+		setAllVertexData();
+		bufferVertexData();
 	}
 }
