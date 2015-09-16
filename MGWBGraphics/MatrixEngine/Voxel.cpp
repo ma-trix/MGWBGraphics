@@ -76,12 +76,11 @@ namespace MatrixEngine {
 
 	void Voxel::translate(glm::vec3 v)
 	{
-		_object2world = glm::translate(_object2world, v);
-//		updateSpatialDiagonalPosition();
+		_translationM = glm::translate(_translationM, v);
+		O2wNeedsUpdate();
 		updateVertexPositions();
 		setAllVertexData();
 		bufferVertexData();
-
 	}
 
 	void Voxel::resetPosition()
