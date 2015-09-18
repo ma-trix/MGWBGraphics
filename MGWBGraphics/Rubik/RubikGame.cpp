@@ -67,7 +67,7 @@ void RubikGame::initVoxels()
 	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
 	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
 
-	_voxel.init(-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
+	_voxel.init(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
 	//_voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
 	//_voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
 
@@ -214,6 +214,14 @@ void RubikGame::processInput()
 			_inputManager.pressKey(event.key.keysym.sym);
 			break;
 		case SDL_KEYUP:
+			if (_inputManager.isKeyPressed(SDLK_y))
+			{
+				_voxel.rotate(glm::quat(glm::vec3(0, 0, 90)));
+			}
+			if (_inputManager.isKeyPressed(SDLK_t))
+			{
+				_voxel.rotate(glm::quat(glm::vec3(0, 0, -90)));
+			}
 			_inputManager.releaseKey(event.key.keysym.sym);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
@@ -231,6 +239,7 @@ void RubikGame::processInput()
 		}
 	}
 	const float VOXEL_SPEED = 0.1f;
+
 	if (_inputManager.isKeyPressed(SDLK_w))
 	{
 		//_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, CAMERA_SPEED));
