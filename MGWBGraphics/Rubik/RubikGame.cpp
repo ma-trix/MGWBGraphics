@@ -54,8 +54,6 @@ void RubikGame::initShaders()
 
 void RubikGame::initVoxels()
 {
-	_view = _camera.getLookAtMatrix();
-
 	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
 	auto texture_path2 = "Textures/PNG/Face2Blue80x80.png";
 	auto texture_path3 = "Textures/PNG/Face3Green80x80.png";
@@ -167,7 +165,7 @@ void RubikGame::prepareP()
 void RubikGame::prepareV()
 {
 	_vLoc = _colorProgram.getUniformLocation("V");
-	//
+	_view = _camera.getLookAtMatrix();
 	glUniformMatrix4fv(_vLoc, 1, GL_FALSE, &(_view[0][0]));
 }
 
