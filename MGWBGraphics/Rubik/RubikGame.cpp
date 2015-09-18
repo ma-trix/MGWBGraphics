@@ -161,6 +161,27 @@ void drawAxes()
 	glBindVertexArray(0);
 }
 
+void RubikGame::prepareP()
+{
+	_pLoc = _colorProgram.getUniformLocation("P");
+	_projection = _camera.getProjectionMatrix();
+	glUniformMatrix4fv(_pLoc, 1, GL_FALSE, &(_projection[0][0]));
+}
+
+void RubikGame::prepareV()
+{
+	_vLoc = _colorProgram.getUniformLocation("V");
+	//
+	glUniformMatrix4fv(_vLoc, 1, GL_FALSE, &(_view[0][0]));
+}
+
+void RubikGame::prepareM()
+{
+	_mLoc = _colorProgram.getUniformLocation("M");
+	_model = _camera.getCameraMatrix();
+	glUniformMatrix4fv(_mLoc, 1, GL_FALSE, &(_model[0][0]));
+}
+
 void RubikGame::drawGame()
 {
 	glEnable(GL_DEPTH_TEST);
@@ -172,18 +193,9 @@ void RubikGame::drawGame()
 	_texLoc = _colorProgram.getUniformLocation("mySampler");
 	glUniform1i(_texLoc, 0);
 
-	_pLoc = _colorProgram.getUniformLocation("P");
-	_projection = _camera.getProjectionMatrix();
-	glUniformMatrix4fv(_pLoc, 1, GL_FALSE, &(_projection[0][0]));
-	
-	_vLoc = _colorProgram.getUniformLocation("V");
-	//
-	glUniformMatrix4fv(_vLoc, 1, GL_FALSE, &(_view[0][0]));
-	
-	_mLoc = _colorProgram.getUniformLocation("M");
-	_model = _camera.getCameraMatrix();
-	glUniformMatrix4fv(_mLoc, 1, GL_FALSE, &(_model[0][0]));
-
+	prepareP();
+	prepareV();
+	prepareM();
 	_voxel.draw();
 	//_voxel2.draw();
 	

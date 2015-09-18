@@ -23,6 +23,10 @@ public:
 	void drawGame();
 	void processInput();
 private:
+	void prepareP();
+	void prepareV();
+	void prepareM();
+	
 	MatrixEngine::GLSLProgram _colorProgram;
 	MatrixEngine::Window _window;
 	int _screenWidth;
