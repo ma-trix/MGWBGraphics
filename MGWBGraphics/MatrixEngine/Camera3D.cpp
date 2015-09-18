@@ -38,6 +38,15 @@ namespace MatrixEngine {
 		createFrustumMatrix(-_width, _width, -_height, _height, _front, _back);
 	}
 
+	void Camera3D::createLookAtMatrix()
+	{
+		_lookAtMatrix = glm::lookAt(
+			glm::vec3(2.5f, 2.5f, 2.5f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f)
+			);
+	}
+
 	void Camera3D::init(int screenWidth, int screenHeight, float foV, float aspectRatio, float front, float back)
 	{
 		_screenWidth = screenWidth;
@@ -48,7 +57,7 @@ namespace MatrixEngine {
 		_front = front;
 		_back = back;
 		calculateProjection();
-		
+		createLookAtMatrix();
 		createFrustumMatrix(-_width, _width, -_height, _height, _front, _back);
 	}
 
