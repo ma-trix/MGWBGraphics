@@ -123,8 +123,7 @@ namespace MatrixEngine {
 
 	glm::vec3 Camera3D::getArcBallVector(glm::vec2 mouse)
 	{
-		glm::vec3 P = glm::vec3(1.0f * mouse.x / _screenWidth * 2 - 1.0f, 1.0f * mouse.y / _screenHeight * 2 - 1.0f, 0.0f);
-		P.y = -P.y;
+		glm::vec3 P = mouseToScreenCoords(mouse);
 		float OP_squared = P.x * P.x + P.y * P.y;
 		if(OP_squared <= 1*1)
 		{
@@ -135,5 +134,17 @@ namespace MatrixEngine {
 			P = glm::normalize(P);
 		}
 		return P;
+	}
+
+	glm::vec3 Camera3D::mouseToScreenCoords(glm::vec2 mouseCoord)
+	{
+		auto screenX = normalizeMouse(mouseCoord.x, _screenWidth);
+		auto screenY = -normalizeMouse(mouseCoord.y, _screenHeight);
+		return glm::vec3(screenX, screenY, 0.0f);
+	}
+
+	float Camera3D::normalizeMouse(int coord, int dimensionSize)
+	{
+		return 1.0f * coord / dimensionSize * 2 - 1.0f;
 	}
 }
