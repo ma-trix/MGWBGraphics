@@ -51,6 +51,7 @@ namespace MatrixEngine {
 		};
 
 	private:
+		void setDefaultPosition();
 		void loadFaceTextures(const std::string(&texturePaths)[6]);
 		GLuint _vao;
 		GLuint _vboID;
