@@ -85,10 +85,17 @@ namespace MatrixEngine {
 		bufferVertexData();
 	}
 
+	void Voxel::setDefaultPosition()
+	{
+		_orientation = glm::quat(glm::vec3(0, 0, 0));
+		_rotationM = glm::toMat4(_orientation);
+		_translationM = glm::translate(glm::mat4(1.0f), _origin);
+		_object2world = _translationM * _rotationM;
+	}
+
 	void Voxel::resetPosition()
 	{
-		_object2world = glm::mat4(1.0f);
-//		updateSpatialDiagonalPosition();
+		setDefaultPosition();
 		updateVertexPositions();
 		setAllVertexData();
 		bufferVertexData();
@@ -174,12 +181,9 @@ namespace MatrixEngine {
 
 	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string(&texturePaths)[6])
 	{
-		_orientation = glm::quat(glm::vec3(0, 0, 0));
-		_rotationM = glm::toMat4(_orientation);
 		_origin = { x, y, z };
-		_translationM = glm::translate(glm::mat4(1.0f), _origin);
-		_object2world = _translationM * _rotationM;
 		_dimensions = { width, height, depth };
+		setDefaultPosition();
 		updateFaceSetup();
 		updateVertexPositions();
 		loadFaceTextures(texturePaths);
@@ -238,7 +242,7 @@ namespace MatrixEngine {
 	{
 		glm::quat normalized = glm::normalize(rotation);
 		_orientation = normalized  * _orientation;
-		_rotationM = glm::toMat4(normalized) * _rotationM;
+		_rotationM = glm::toMat4(_orientation);
 		O2wNeedsUpdate();
 		updateVertexPositions();
 		setAllVertexData();
