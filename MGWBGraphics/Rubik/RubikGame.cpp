@@ -72,7 +72,6 @@ void RubikGame::gameLoop()
 		processInput();
 		_time += 0.1f;
 		_camera.update();
-		_camera2D.update();
 		drawGame();
 		_fps = _fpsLimiter.end();
 
