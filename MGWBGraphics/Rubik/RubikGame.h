@@ -18,7 +18,7 @@ public:
 	void run();
 	void initSystems();
 	void initShaders();
-	void initVoxels();
+	void initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::string(&texturePaths)[6]);
 	void gameLoop();
 	void drawGame();
 	void processInput();

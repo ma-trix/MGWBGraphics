@@ -4,6 +4,16 @@
 #include <MatrixEngine/Voxel.h>
 
 
+const std::string texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
+const std::string texture_path2 = "Textures/PNG/Face2Blue80x80.png";
+const std::string texture_path3 = "Textures/PNG/Face3Green80x80.png";
+const std::string texture_path4 = "Textures/PNG/Face4Red80x80.png";
+const std::string texture_path5 = "Textures/PNG/Face5Orange80x80.png";
+const std::string texture_path6 = "Textures/PNG/Face6White80x80.png";
+const std::string texture_pathAyse = "Textures/PNG/HeartAyse80x80.png";
+
+
+
 RubikGame::RubikGame() : _screenWidth(1600), _screenHeight(900), _maxFPS(60), _gameState(GameState::PLAY)
 {
 }
@@ -17,7 +27,9 @@ RubikGame::~RubikGame()
 void RubikGame::run()
 {
 	initSystems();
-	initVoxels();
+	const std::string texPaths[6] = { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 };
+	const std::string texPathsSame[6] = { texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse };
+	initVoxels(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.0f, 1.0f, 1.0f }, texPaths);
 	gameLoop();
 }
 
@@ -48,16 +60,9 @@ void RubikGame::initShaders()
 	_colorProgram.linkShaders();
 }
 
-void RubikGame::initVoxels()
+void RubikGame::initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::string(&texPaths)[6])
 {
-	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
-	auto texture_path2 = "Textures/PNG/Face2Blue80x80.png";
-	auto texture_path3 = "Textures/PNG/Face3Green80x80.png";
-	auto texture_path4 = "Textures/PNG/Face4Red80x80.png";
-	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
-	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
-
-	_voxel.init(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
+	_voxel.init(position.x, position.y, position.z, dimensions.x, dimensions.y, dimensions.z, texPaths);
 }
 
 void RubikGame::gameLoop()
