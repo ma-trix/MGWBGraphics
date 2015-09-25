@@ -18,6 +18,7 @@ public:
 	void run();
 
 private:
+	void initCamera(float foV, float aspectRatio, float front, float back, float scale, glm::vec3 cameraPosition);
 	void initSystems();
 	void initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, std::vector<std::string> attributes);
 	void initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::vector<std::string> &texPaths);

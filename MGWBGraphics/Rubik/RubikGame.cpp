@@ -31,26 +31,24 @@ void RubikGame::run()
 	gameLoop();
 }
 
+void RubikGame::initCamera(float FoVinDeg, float aspectRatio, float frontDistance, float backDistance, float scale, glm::vec3 cameraPosition)
+{
+	_camera.init(_screenWidth, _screenHeight, FoVinDeg, aspectRatio, frontDistance, backDistance);
+	_camera.setPosition(cameraPosition);
+	_camera.setScale(scale);
+}
+
 void RubikGame::initSystems()
 {
 	MatrixEngine::init();
 	_window.create("Rubik 3D", _screenWidth, _screenHeight, 0);
 	auto vShaderFilePath = "Shaders/colorShading.vert";
 	auto fragment_shader_file_path = "Shaders/colorShading.frag";
-	int nAttributes = 3;
 	std::vector<std::string> attributes = { "vertexPosition", "vertexColor", "vertexUV" };
 	initShaders(vShaderFilePath, fragment_shader_file_path, attributes);
 	_spriteBatch.init();
 	_fpsLimiter.init(_maxFPS);
-	
-	float foV = 45.0f;	// Field of view in degrees
-	float aspectRatio = 16.0f / 9.0f;	// Aspect ratio width to height
-	float front = 1.0f;	// Check http://www.songho.ca/opengl/gl_projectionmatrix.html#comment-1308374035
-	float back = 10.0f;	// See above link
-	_camera.init(_screenWidth, _screenHeight, foV, aspectRatio, front, back);
-	auto cameraPosition = glm::vec3 { 0.0f, 0.0f, 0.0f };
-	_camera.setPosition(cameraPosition);
-	_camera.setScale(1.0f);
+	initCamera(45.0f, 16.0f / 9.0f, 1.0f, 10.0f, 1.0f, glm::vec3{ 0.0f, 0.0f, 0.0f });
 }
 
 void RubikGame::initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, const std::vector<std::string> attributes)
