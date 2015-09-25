@@ -37,10 +37,6 @@ void RubikGame::initSystems()
 	glm::vec3 position{0.0f, 0.0f, 0.0f};
 	_camera.setPosition(position);
 	_camera.setScale(1.0f);
-	
-	_camera2D.init(_screenWidth, _screenHeight);
-	_camera2D.setPosition(glm::vec2{ 0.0f, 0.0f });
-	_camera2D.setScale(1.0f);
 }
 
 void RubikGame::initShaders()
