@@ -25,7 +25,7 @@ RubikGame::~RubikGame()
 void RubikGame::run()
 {
 	initSystems();
-	const std::string texPaths[6] = { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 };
+	const std::vector<std::string> texPaths = { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 };
 	const std::string texPathsSame[6] = { texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse };
 	initVoxels(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.0f, 1.0f, 1.0f }, texPaths);
 	gameLoop();
@@ -63,7 +63,7 @@ void RubikGame::initShaders(const std::string vShaderFilePath, const std::string
 	_colorProgram.linkShaders();
 }
 
-void RubikGame::initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::string(&texPaths)[6])
+void RubikGame::initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::vector<std::string> &texPaths)
 {
 	_voxel.init(position.x, position.y, position.z, dimensions.x, dimensions.y, dimensions.z, texPaths);
 }

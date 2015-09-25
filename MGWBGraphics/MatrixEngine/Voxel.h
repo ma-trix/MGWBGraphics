@@ -6,6 +6,7 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <vector>
 
 namespace MatrixEngine {
 	struct Face
@@ -33,7 +34,7 @@ namespace MatrixEngine {
 		void init(float x, float y, float z, float width, float height, float depth, std::string texturePath);
 		void updateVertexPositions();
 		void updateFaceSetup();
-		void init(float x, float y, float z, float width, float height, float depth, const std::string (&texturePaths)[6]);
+		void init(float x, float y, float z, float width, float height, float depth, const std::vector<std::string>& texPaths);
 		void bufferVertexData();
 		void setAllVertexData();
 		void setVertexDataForFace(int face, Color color);
@@ -52,7 +53,7 @@ namespace MatrixEngine {
 
 	private:
 		void setDefaultPosition();
-		void loadFaceTextures(const std::string(&texturePaths)[6]);
+		void loadFaceTextures(int numFaces, const std::vector<std::string> & texPaths);
 		GLuint _vao;
 		GLuint _vboID;
 		GLTexture _face[6];

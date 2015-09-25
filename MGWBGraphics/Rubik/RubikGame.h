@@ -20,7 +20,7 @@ public:
 private:
 	void initSystems();
 	void initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, std::vector<std::string> attributes);
-	void initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::string(&texturePaths)[6]);
+	void initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::vector<std::string> &texPaths);
 	void gameLoop();
 	void updateCamera();
 	void timeProgress();

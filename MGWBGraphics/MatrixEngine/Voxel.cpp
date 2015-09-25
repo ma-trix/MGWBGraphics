@@ -8,6 +8,7 @@
 
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <vector>
 
 namespace MatrixEngine {
 	Voxel::Voxel()
@@ -179,14 +180,14 @@ namespace MatrixEngine {
 		_faces[5] = bottom;
 	}
 
-	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::string(&texturePaths)[6])
+	void Voxel::init(float x, float y, float z, float width, float height, float depth, const std::vector<std::string> &texPaths)
 	{
 		_origin = { x, y, z };
 		_dimensions = { width, height, depth };
 		setDefaultPosition();
 		updateFaceSetup();
 		updateVertexPositions();
-		loadFaceTextures(texturePaths);
+		loadFaceTextures(_FACECOUNT, texPaths);
 		if (_vboID == 0) { glGenBuffers(1, &_vboID); }
 		setAllVertexData();
 		bufferVertexData();
@@ -230,11 +231,11 @@ namespace MatrixEngine {
 		setVertexData(_vertexData[5 + faceOffset], _vertices[_faces[faceId].vertices[0]], _TOPRIGHT, color);
 	}
 
-	void Voxel::loadFaceTextures(const std::string(&texturePaths)[6])
+	void Voxel::loadFaceTextures(int numFaces, const std::vector<std::string> & texPaths)
 	{
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < numFaces; i++)
 		{
-			_face[i] = ResourceManager::getTexture(texturePaths[i]);
+			_face[i] = ResourceManager::getTexture(texPaths[i]);
 		}
 	}
 
