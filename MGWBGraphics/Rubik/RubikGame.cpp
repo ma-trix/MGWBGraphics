@@ -34,8 +34,8 @@ void RubikGame::initSystems()
 	float front = 1.0f;	// Check http://www.songho.ca/opengl/gl_projectionmatrix.html#comment-1308374035
 	float back = 10.0f;	// See above link
 	_camera.init(_screenWidth, _screenHeight, foV, aspectRatio, front, back);
-	glm::vec3 position{0.0f, 0.0f, 0.0f};
-	_camera.setPosition(position);
+	auto cameraPosition = glm::vec3 { 0.0f, 0.0f, 0.0f };
+	_camera.setPosition(cameraPosition);
 	_camera.setScale(1.0f);
 }
 
