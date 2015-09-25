@@ -18,11 +18,9 @@ RubikGame::RubikGame() : _screenWidth(1600), _screenHeight(900), _maxFPS(60), _g
 {
 }
 
-
 RubikGame::~RubikGame()
 {
 }
-
 
 void RubikGame::run()
 {
@@ -37,7 +35,11 @@ void RubikGame::initSystems()
 {
 	MatrixEngine::init();
 	_window.create("Rubik 3D", _screenWidth, _screenHeight, 0);
-	initShaders();
+	auto vShaderFilePath = "Shaders/colorShading.vert";
+	auto fragment_shader_file_path = "Shaders/colorShading.frag";
+	int nAttributes = 3;
+	std::vector<std::string> attributes = { "vertexPosition", "vertexColor", "vertexUV" };
+	initShaders(vShaderFilePath, fragment_shader_file_path, attributes);
 	_spriteBatch.init();
 	_fpsLimiter.init(_maxFPS);
 	
@@ -51,12 +53,13 @@ void RubikGame::initSystems()
 	_camera.setScale(1.0f);
 }
 
-void RubikGame::initShaders()
+void RubikGame::initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, const std::vector<std::string> attributes)
 {
-	_colorProgram.compileShaders("Shaders/colorShading.vert","Shaders/colorShading.frag");
-	_colorProgram.addAttribute("vertexPosition");
-	_colorProgram.addAttribute("vertexColor");
-	_colorProgram.addAttribute("vertexUV");
+	_colorProgram.compileShaders(vShaderFilePath,fShaderFilePath);
+	for (auto &attribute:attributes) 
+	{
+		_colorProgram.addAttribute(attribute);
+	}
 	_colorProgram.linkShaders();
 }
 
@@ -67,24 +70,43 @@ void RubikGame::initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::
 
 void RubikGame::gameLoop()
 {
-
 	while(_gameState != GameState::EXIT)
 	{
-		_fpsLimiter.begin();
+		frameSetUp();
 		processInput();
-		_time += 0.1f;
-		_camera.update();
+		timeProgress();
+		updateCamera();
 		drawGame();
-		_fps = _fpsLimiter.end();
+		frameTearDown();
+	}
+}
 
-		static int frameCounter = 0;
-		frameCounter++;
-		if(frameCounter == 60)
-		{
-			//std::cout << _fps << std::endl;
-			std::cout << _voxel.printPosition() << std::endl;
-			frameCounter = 0;
-		}
+void RubikGame::updateCamera()
+{
+	_camera.update();
+
+}
+
+void RubikGame::timeProgress()
+{
+	_time += 0.1f;
+}
+
+void RubikGame::frameSetUp()
+{
+	_fpsLimiter.begin();
+}
+
+void RubikGame::frameTearDown()
+{
+	_fps = _fpsLimiter.end();
+
+	static int frameCounter = 0;
+	frameCounter++;
+	if (frameCounter == 60)
+	{
+		std::cout << _voxel.printPosition() << std::endl;
+		frameCounter = 0;
 	}
 }
 

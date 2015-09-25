@@ -16,13 +16,18 @@ public:
 	RubikGame();
 	~RubikGame();
 	void run();
+
+private:
 	void initSystems();
-	void initShaders();
+	void initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, std::vector<std::string> attributes);
 	void initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::string(&texturePaths)[6]);
 	void gameLoop();
+	void updateCamera();
+	void timeProgress();
+	void frameSetUp();
+	void frameTearDown();
 	void drawGame();
 	void processInput();
-private:
 	void prepareP();
 	void prepareV();
 	void prepareM();
