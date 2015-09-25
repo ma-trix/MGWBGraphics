@@ -240,32 +240,26 @@ void RubikGame::processInput()
 
 	if (_inputManager.isKeyPressed(SDLK_w))
 	{
-		//_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, CAMERA_SPEED));
 		_voxel.translate(glm::vec3(-VOXEL_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_s))
 	{
-		//_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, -CAMERA_SPEED));
 		_voxel.translate(glm::vec3(VOXEL_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_d))
 	{
-//		_camera.setPosition(_camera.getPosition() + glm::vec3(CAMERA_SPEED, 0.0f, 0.0f));
 		_voxel.translate(glm::vec3(0.0f, VOXEL_SPEED, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_a))
 	{
-//		_camera.setPosition(_camera.getPosition() + glm::vec3(-CAMERA_SPEED, 0.0f, 0.0f));
 		_voxel.translate(glm::vec3(0.0f, -VOXEL_SPEED, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_q))
 	{
-//		_camera.setScale(_camera.getScale() + SCALE_SPEED);
 		_voxel.translate(glm::vec3(0.0f, 0.0f, VOXEL_SPEED));
 	}
 	if (_inputManager.isKeyPressed(SDLK_e))
 	{
-//		_camera.setScale(_camera.getScale() - SCALE_SPEED);
 		_voxel.translate(glm::vec3(0.0f, 0.0f, -VOXEL_SPEED));
 	}
 	if (_inputManager.isKeyPressed(SDLK_r))
