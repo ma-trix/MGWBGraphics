@@ -168,12 +168,16 @@ void RubikGame::prepareM()
 	glUniformMatrix4fv(_mLoc, 1, GL_FALSE, &(_model[0][0]));
 }
 
-void RubikGame::drawGame()
+void clearScreen()
 {
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void RubikGame::drawGame()
+{
+	clearScreen();
 	_colorProgram.use();
 	glActiveTexture(GL_TEXTURE0);
 	_texLoc = _colorProgram.getUniformLocation("mySampler");
