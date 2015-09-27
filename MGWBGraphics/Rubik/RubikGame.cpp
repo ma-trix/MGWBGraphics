@@ -4,72 +4,107 @@
 #include <MatrixEngine/Voxel.h>
 
 
+const std::string texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
+const std::string texture_path2 = "Textures/PNG/Face2Blue80x80.png";
+const std::string texture_path3 = "Textures/PNG/Face3Green80x80.png";
+const std::string texture_path4 = "Textures/PNG/Face4Red80x80.png";
+const std::string texture_path5 = "Textures/PNG/Face5Orange80x80.png";
+const std::string texture_path6 = "Textures/PNG/Face6White80x80.png";
+const std::string texture_pathAyse = "Textures/PNG/HeartAyse80x80.png";
+
+
+
 RubikGame::RubikGame() : _screenWidth(1600), _screenHeight(900), _maxFPS(60), _gameState(GameState::PLAY)
 {
 }
-
 
 RubikGame::~RubikGame()
 {
 }
 
-
 void RubikGame::run()
 {
 	initSystems();
+	const std::vector<std::string> texPaths = { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 };
+	const std::string texPathsSame[6] = { texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse, texture_pathAyse };
+	initVoxels(glm::vec3{ 0.0f, 0.0f, 0.0f }, glm::vec3{ 1.0f, 1.0f, 1.0f }, texPaths);
 	gameLoop();
+}
+
+void RubikGame::initCamera(float FoVinDeg, float aspectRatio, float frontDistance, float backDistance, float scale, glm::vec3 cameraPosition)
+{
+	_camera.init(_screenWidth, _screenHeight, FoVinDeg, aspectRatio, frontDistance, backDistance);
+	_camera.setPosition(cameraPosition);
+	_camera.setScale(scale);
 }
 
 void RubikGame::initSystems()
 {
 	MatrixEngine::init();
 	_window.create("Rubik 3D", _screenWidth, _screenHeight, 0);
-	initShaders();
+	auto vShaderFilePath = "Shaders/colorShading.vert";
+	auto fragment_shader_file_path = "Shaders/colorShading.frag";
+	std::vector<std::string> attributes = { "vertexPosition", "vertexColor", "vertexUV" };
+	initShaders(vShaderFilePath, fragment_shader_file_path, attributes);
 	_spriteBatch.init();
 	_fpsLimiter.init(_maxFPS);
-	
-	float foV = 45.0f;	// Field of view in degrees
-	float aspectRatio = 16.0f / 9.0f;	// Aspect ratio width to height
-	float front = 1.0f;	// Check http://www.songho.ca/opengl/gl_projectionmatrix.html#comment-1308374035
-	float back = 10.0f;	// See above link
-	_camera.init(_screenWidth, _screenHeight, foV, aspectRatio, front, back);
-	glm::vec3 position{0.0f, 0.0f, 0.0f};
-	_camera.setPosition(position);
-	_camera.setScale(1.0f);
-	
-	_camera2D.init(_screenWidth, _screenHeight);
-	_camera2D.setPosition(glm::vec2{ 0.0f, 0.0f });
-	_camera2D.setScale(1.0f);
+	initCamera(45.0f, 16.0f / 9.0f, 1.0f, 10.0f, 1.0f, glm::vec3{ 0.0f, 0.0f, 0.0f });
 }
 
-void RubikGame::initShaders()
+void RubikGame::initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, const std::vector<std::string> attributes)
 {
-	_colorProgram.compileShaders("Shaders/colorShading.vert","Shaders/colorShading.frag");
-	_colorProgram.addAttribute("vertexPosition");
-	_colorProgram.addAttribute("vertexColor");
-	_colorProgram.addAttribute("vertexUV");
+	_colorProgram.compileShaders(vShaderFilePath,fShaderFilePath);
+	for (auto &attribute:attributes) 
+	{
+		_colorProgram.addAttribute(attribute);
+	}
 	_colorProgram.linkShaders();
+}
+
+void RubikGame::initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::vector<std::string> &texPaths)
+{
+	_voxel.init(position.x, position.y, position.z, dimensions.x, dimensions.y, dimensions.z, texPaths);
 }
 
 void RubikGame::gameLoop()
 {
 	while(_gameState != GameState::EXIT)
 	{
-		_fpsLimiter.begin();
+		frameSetUp();
 		processInput();
-		_time += 0.1f;
-		_camera.update();
-		_camera2D.update();
+		timeProgress();
+		updateCamera();
 		drawGame();
-		_fps = _fpsLimiter.end();
+		frameTearDown();
+	}
+}
 
-		static int frameCounter = 0;
-		frameCounter++;
-		if(frameCounter == 60)
-		{
-			std::cout << _fps << std::endl;
-			frameCounter = 0;
-		}
+void RubikGame::updateCamera()
+{
+	_camera.update();
+
+}
+
+void RubikGame::timeProgress()
+{
+	_time += 0.1f;
+}
+
+void RubikGame::frameSetUp()
+{
+	_fpsLimiter.begin();
+}
+
+void RubikGame::frameTearDown()
+{
+	_fps = _fpsLimiter.end();
+
+	static int frameCounter = 0;
+	frameCounter++;
+	if (frameCounter == 60)
+	{
+		std::cout << _voxel.printPosition() << std::endl;
+		frameCounter = 0;
 	}
 }
 
@@ -137,49 +172,47 @@ void drawAxes()
 	glBindVertexArray(0);
 }
 
-void RubikGame::drawGame()
+void RubikGame::prepareP()
+{
+	_pLoc = _colorProgram.getUniformLocation("P");
+	_projection = _camera.getProjectionMatrix();
+	glUniformMatrix4fv(_pLoc, 1, GL_FALSE, &(_projection[0][0]));
+}
+
+void RubikGame::prepareV()
+{
+	_vLoc = _colorProgram.getUniformLocation("V");
+	_view = _camera.getLookAtMatrix();
+	glUniformMatrix4fv(_vLoc, 1, GL_FALSE, &(_view[0][0]));
+}
+
+void RubikGame::prepareM()
+{
+	_mLoc = _colorProgram.getUniformLocation("M");
+	_model = _camera.getCameraMatrix();
+	glUniformMatrix4fv(_mLoc, 1, GL_FALSE, &(_model[0][0]));
+}
+
+void clearScreen()
 {
 	glEnable(GL_DEPTH_TEST);
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
+void RubikGame::drawGame()
+{
+	clearScreen();
 	_colorProgram.use();
 	glActiveTexture(GL_TEXTURE0);
-	GLint textureLocation = _colorProgram.getUniformLocation("mySampler");
-	glUniform1i(textureLocation, 0);
+	_texLoc = _colorProgram.getUniformLocation("mySampler");
+	glUniform1i(_texLoc, 0);
 
-	GLint pLocation = _colorProgram.getUniformLocation("P");
-	glm::mat4 cameraMatrix = _camera.getProjectionMatrix();
-	glUniformMatrix4fv(pLocation, 1, GL_FALSE, &(cameraMatrix[0][0]));
-
-	GLint vLocation = _colorProgram.getUniformLocation("V");
-
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(2.5f, 2.5f, 2.5f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-		);
-	glUniformMatrix4fv(vLocation, 1, GL_FALSE, &(view[0][0]));
-
-	GLint mLocation = _colorProgram.getUniformLocation("M");
-
-	glm::mat4 model = _camera.getCameraMatrix();
-	glUniformMatrix4fv(mLocation, 1, GL_FALSE, &(model[0][0]));
-
-	auto texture_path1 = "Textures/PNG/Face1Yellow80x80.png";
-	auto texture_path2 = "Textures/PNG/Face2Blue80x80.png";
-	auto texture_path3 = "Textures/PNG/Face3Green80x80.png";
-	auto texture_path4 = "Textures/PNG/Face4Red80x80.png";
-	auto texture_path5 = "Textures/PNG/Face5Orange80x80.png";
-	auto texture_path6 = "Textures/PNG/Face6White80x80.png";
-
-	MatrixEngine::Voxel voxel;
-	voxel.init(0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, { texture_path1, texture_path2, texture_path3, texture_path4, texture_path5, texture_path6 });
-	voxel.draw();
-
-	MatrixEngine::Voxel voxel2;
-	voxel2.init(1.5f, 0.5f, 0.0f, 0.8f, 1.0f, 1.0f, "Textures/PNG/HeartAyse80x80.png");
-	voxel2.draw();
+	prepareM();
+	prepareV();
+	prepareP();
+	_voxel.draw();
+	//_voxel2.draw();
 	
 	drawAxes();
 
@@ -208,39 +241,79 @@ void RubikGame::processInput()
 			_inputManager.pressKey(event.key.keysym.sym);
 			break;
 		case SDL_KEYUP:
+			if (_inputManager.isKeyPressed(SDLK_y))
+			{
+				_voxel.rotate(glm::quat(glm::vec3(0, 0, 90)));
+			}
+			if (_inputManager.isKeyPressed(SDLK_t))
+			{
+				_voxel.rotate(glm::quat(glm::vec3(0, 0, -90)));
+			}
 			_inputManager.releaseKey(event.key.keysym.sym);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			_inputManager.pressKey(event.button.button);
+			_savedMouseCoords = _inputManager.getMouseCoords();
+			_inputManager.arcBallOn();
 			break;
 		case SDL_MOUSEBUTTONUP:
 			_inputManager.releaseKey(event.button.button);
+			_inputManager.arcBallOff();
+			break;
+		case SDL_MOUSEWHEEL:
+			_inputManager.mouseWheelMotion(event.wheel.y);
 			break;
 		}
 	}
+	const float VOXEL_SPEED = 0.1f;
+
 	if (_inputManager.isKeyPressed(SDLK_w))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, CAMERA_SPEED));
+		_voxel.translate(glm::vec3(-VOXEL_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_s))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(0.0f, 0.0f, -CAMERA_SPEED));
+		_voxel.translate(glm::vec3(VOXEL_SPEED, 0.0f, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_d))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(CAMERA_SPEED, 0.0f, 0.0f));
+		_voxel.translate(glm::vec3(0.0f, VOXEL_SPEED, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_a))
 	{
-		_camera.setPosition(_camera.getPosition() + glm::vec3(-CAMERA_SPEED, 0.0f, 0.0f));
+		_voxel.translate(glm::vec3(0.0f, -VOXEL_SPEED, 0.0f));
 	}
 	if (_inputManager.isKeyPressed(SDLK_q))
 	{
-		_camera.setScale(_camera.getScale() + SCALE_SPEED);
+		_voxel.translate(glm::vec3(0.0f, 0.0f, VOXEL_SPEED));
 	}
 	if (_inputManager.isKeyPressed(SDLK_e))
 	{
-		_camera.setScale(_camera.getScale() - SCALE_SPEED);
+		_voxel.translate(glm::vec3(0.0f, 0.0f, -VOXEL_SPEED));
+	}
+	if (_inputManager.isKeyPressed(SDLK_r))
+	{
+		_voxel.resetPosition();
+	}
+	if(_inputManager.wasWheelMoved())
+	{
+		_camera.zoom(_inputManager.getMouseWheelMotion());
+	}
+	if(_inputManager.isArcBallON())
+	{
+		auto currentMouseCoords = _inputManager.getMouseCoords();
+		//TODO: When returning to coordinates i started at, the test won't be passed. Rethink.
+		if(currentMouseCoords.x != _savedMouseCoords.x || currentMouseCoords.y != _savedMouseCoords.y)
+		{
+			auto va = _camera.getArcBallVector(currentMouseCoords);
+			auto vb = _camera.getArcBallVector(_savedMouseCoords);
+			auto angle = acos(glm::min(1.0f, glm::dot(va, vb)));
+			glm::vec3 axisInCameraCoord = glm::cross(va, vb);
+			auto camera2object = glm::inverse(_camera.getProjectionMatrix()) * _voxel.getObject2world();
+			glm::vec4 axis_in_object_coord = camera2object * glm::vec4(axisInCameraCoord, 1.0f);
+			glm::vec3 axisInObjectCoord = { axis_in_object_coord.x, axis_in_object_coord.y, axis_in_object_coord.z };
+			_voxel.rotate(angle, axisInObjectCoord);
+		}
 	}
 	if (_inputManager.isKeyPressed(SDLK_ESCAPE))
 	{

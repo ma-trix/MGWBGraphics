@@ -33,16 +33,32 @@ namespace MatrixEngine {
 		// _frustumMatrix = glm::transpose(_frustumMatrix); 
 	}
 
+	void Camera3D::createFrustumMatrix()
+	{
+		createFrustumMatrix(-_width, _width, -_height, _height, _front, _back);
+	}
+
+	void Camera3D::createLookAtMatrix()
+	{
+		_lookAtMatrix = glm::lookAt(
+			glm::vec3(2.5f, 2.5f, 2.5f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f)
+			);
+	}
+
 	void Camera3D::init(int screenWidth, int screenHeight, float foV, float aspectRatio, float front, float back)
 	{
 		_screenWidth = screenWidth;
 		_screenHeight = screenHeight;
 		_orthoMatrix = glm::ortho(0.0f, (float)_screenWidth, 0.0f, (float)_screenHeight);
-		const double DEG2RAD = 3.14159265 / 180;
-		double tangent = tan(foV / 2 * DEG2RAD);
-		double height = front * tangent;
-		double width = height * aspectRatio;
-		createFrustumMatrix(-width, width, -height, height, front, back);
+		_fov = foV;
+		_aspectRatio = aspectRatio;
+		_front = front;
+		_back = back;
+		calculateProjection();
+		createLookAtMatrix();
+		createFrustumMatrix(-_width, _width, -_height, _height, _front, _back);
 	}
 
 	void Camera3D::update()
@@ -78,4 +94,46 @@ namespace MatrixEngine {
 		return screenCoords;
 	}
 
+	void Camera3D::zoom(int mouseWheelMotion)
+	{
+		_fov += mouseWheelMotion;
+		if (_fov >= _MINFOV && _fov <= _MAXFOV)
+		{
+			calculateProjection();
+			createFrustumMatrix();
+			_needsMatrixUpdate = true;
+		}
+		if (_fov < _MINFOV)
+		{
+			_fov = _MINFOV;
+		}
+		if (_fov > _MAXFOV)
+		{
+			_fov = _MAXFOV;
+		}
+		
+	}
+
+	void Camera3D::calculateProjection()
+	{
+		_tangent = tan(_fov / 2 * _DEG2RAD);
+		_height = _front * _tangent;
+		_width = _height * _aspectRatio;
+	}
+
+	glm::vec3 Camera3D::getArcBallVector(glm::vec2 mouse)
+	{
+		glm::vec3 P = glm::vec3(1.0f * mouse.x / _screenWidth * 2 - 1.0f, 1.0f * mouse.y / _screenHeight * 2 - 1.0f, 0.0f);
+		P.y = -P.y;
+		float OP_squared = P.x * P.x + P.y * P.y;
+		if(OP_squared <= 1*1)
+		{
+			P.z = sqrt(1 * 1 - OP_squared);
+		}
+		else
+		{
+			P = glm::normalize(P);
+		}
+		return P;
+	}
 }

@@ -6,6 +6,7 @@
 #include <MatrixEngine/InputManager.h>
 #include <MatrixEngine/Camera3D.h>
 #include <MatrixEngine/Camera2D.h>
+#include <MatrixEngine/Voxel.h>
 
 enum class GameState { PLAY, EXIT };
 
@@ -15,12 +16,23 @@ public:
 	RubikGame();
 	~RubikGame();
 	void run();
+
+private:
+	void initCamera(float foV, float aspectRatio, float front, float back, float scale, glm::vec3 cameraPosition);
 	void initSystems();
-	void initShaders();
+	void initShaders(const std::string vShaderFilePath, const std::string fShaderFilePath, std::vector<std::string> attributes);
+	void initVoxels(glm::vec3 position, glm::vec3 dimensions, const std::vector<std::string> &texPaths);
 	void gameLoop();
+	void updateCamera();
+	void timeProgress();
+	void frameSetUp();
+	void frameTearDown();
 	void drawGame();
 	void processInput();
-private:
+	void prepareP();
+	void prepareV();
+	void prepareM();
+	
 	MatrixEngine::GLSLProgram _colorProgram;
 	MatrixEngine::Window _window;
 	int _screenWidth;
@@ -37,4 +49,17 @@ private:
 	GLuint ibo_cube_elements;
 	GLuint vbo_cube_vertices;
 	GLuint vbo_cube_colors;
+	glm::vec2 _savedMouseCoords;
+
+	glm::mat4 _projection;
+	glm::mat4 _view;
+	glm::mat4 _model;
+
+	MatrixEngine::Voxel _voxel;
+	MatrixEngine::Voxel _voxel2;
+
+	GLint _pLoc;
+	GLint _vLoc;
+	GLint _mLoc;
+	GLint _texLoc;
 };

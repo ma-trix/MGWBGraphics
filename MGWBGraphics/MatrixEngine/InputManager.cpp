@@ -41,4 +41,46 @@ namespace MatrixEngine
 	{
 		return _mouseCoords;
 	}
+
+	void InputManager::mouseWheelMotion(int motion)
+	{
+		_mouseWheelMotion = motion;
+	}
+
+	bool InputManager::wasWheelMoved()
+	{
+		if (_mouseWheelMotion != 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	int InputManager::getMouseWheelMotion()
+	{
+		int value = _mouseWheelMotion;
+		_mouseWheelMotion = 0;
+		return value;
+	}
+
+	void InputManager::saveMouseLocation()
+	{
+		_savedMouseCoords = _mouseCoords;
+	}
+
+	void InputManager::arcBallOn()
+	{
+		saveMouseLocation();
+		_arcBall = true;
+	}
+
+	void InputManager::arcBallOff()
+	{
+		_arcBall = false;
+	}
+
+	bool InputManager::isArcBallON()
+	{
+		return _arcBall;
+	}
 }
