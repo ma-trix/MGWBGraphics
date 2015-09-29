@@ -65,18 +65,6 @@ namespace MatrixEngine {
 		glBindVertexArray(0);
 	}
 
-	void Voxel::rotate(float angle, glm::vec3 axisInObjectCoord)
-	{
-		// angleAxis(degrees(RotationAngle), RotationAxis)
-		glm::quat q = glm::angleAxis(glm::degrees(angle), axisInObjectCoord);
-		rotate(q);
-//		_object2world = glm::rotate(_object2world, glm::degrees(angle), axisInObjectCoord);
-//		
-//		updateVertexPositions();
-//		setAllVertexData();
-//		bufferVertexData();
-	}
-
 	void Voxel::translate(glm::vec3 v)
 	{
 		_translationM = glm::translate(_translationM, v);
@@ -237,6 +225,12 @@ namespace MatrixEngine {
 		{
 			_face[i] = ResourceManager::getTexture(texPaths[i]);
 		}
+	}
+
+	void Voxel::rotate(float angle, glm::vec3 axisInObjectCoord)
+	{
+		glm::quat q = glm::angleAxis(glm::degrees(angle), axisInObjectCoord);
+		rotate(q);
 	}
 
 	void Voxel::rotate(glm::quat rotation)

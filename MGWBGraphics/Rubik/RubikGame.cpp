@@ -224,6 +224,9 @@ void RubikGame::drawGame()
 
 void RubikGame::processInput()
 {
+	//TODO: remove this ugly constant
+	const double _DEG2RAD = 3.14159265 / 180;
+
 	const float CAMERA_SPEED = 0.5f;
 	const float SCALE_SPEED = 0.01f;
 	SDL_Event event;
@@ -243,11 +246,11 @@ void RubikGame::processInput()
 		case SDL_KEYUP:
 			if (_inputManager.isKeyPressed(SDLK_y))
 			{
-				_voxel.rotate(glm::quat(glm::vec3(0, 0, 90)));
+				_voxel.rotate(glm::quat(glm::vec3(0, 0, 30 * _DEG2RAD)));
 			}
 			if (_inputManager.isKeyPressed(SDLK_t))
 			{
-				_voxel.rotate(glm::quat(glm::vec3(0, 0, -90)));
+				_voxel.rotate(glm::quat(glm::vec3(0, 0, -90 * _DEG2RAD)));
 			}
 			_inputManager.releaseKey(event.key.keysym.sym);
 			break;
