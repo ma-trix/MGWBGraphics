@@ -56,5 +56,8 @@ namespace MatrixEngine {
 		float _front;
 		float _back;
 		float _aspectRatio;
+
+		float normalizeMouse(int coord, int dimensionSize);
+		glm::vec3 Camera3D::mouseToScreenCoords(glm::vec2 mouseCoords);
 	};
 }
