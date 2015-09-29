@@ -75,10 +75,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DisplayHelper.cpp" />
     <ClCompile Include="mian.cpp" />
     <ClCompile Include="RubikGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DisplayHelper.h" />
     <ClInclude Include="RubikGame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
